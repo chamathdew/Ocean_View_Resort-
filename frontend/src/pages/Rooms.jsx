@@ -8,6 +8,13 @@ export default function Rooms() {
   const [form, setForm] = useState({ roomNumber: "", roomType: "Single", status: "active" });
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) setUser(JSON.parse(savedUser));
+    load();
+  }, []);
 
   async function load() {
     setLoading(true);
@@ -21,15 +28,14 @@ export default function Rooms() {
     }
   }
 
-  useEffect(() => {
-    load();
-  }, []);
-
   async function addRoom(e) {
     e.preventDefault();
     setMsg("");
+    const token = localStorage.getItem("token");
     try {
-      await axios.post(`${API}/api/rooms`, form);
+      await axios.post(`${API}/api/rooms`, form, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setForm({ roomNumber: "", roomType: "Single", status: "active" });
       setMsg("✅ Room added successfully");
       load();
@@ -40,13 +46,18 @@ export default function Rooms() {
 
   async function deleteRoom(id) {
     if (!window.confirm("Delete this room?")) return;
+    const token = localStorage.getItem("token");
     try {
-      await axios.delete(`${API}/api/rooms/${id}`);
+      await axios.delete(`${API}/api/rooms/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       load();
     } catch (err) {
-      alert("Delete failed");
+      alert(err?.response?.data?.message || "Delete failed");
     }
   }
+
+  const isAdmin = user && user.role === "admin";
 
   return (
     <div className="container" style={{ padding: "40px 18px" }}>
@@ -55,41 +66,47 @@ export default function Rooms() {
         <span className="badge">{rooms.length} Total Rooms</span>
       </div>
 
-      <div style={{ background: "#fff", padding: 24, borderRadius: 18, border: "1px solid var(--border)", marginBottom: 30 }}>
-        <h3 style={{ marginTop: 0, marginBottom: 15, fontSize: 18 }}>Add New Room</h3>
-        <form onSubmit={addRoom} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 15, alignItems: "end" }}>
-          <div className="field">
-            <div className="label">Room Number</div>
-            <input
-              placeholder="e.g. A101"
-              value={form.roomNumber}
-              onChange={(e) => setForm({ ...form, roomNumber: e.target.value })}
-              required
-            />
-          </div>
+      {isAdmin ? (
+        <div style={{ background: "#fff", padding: 24, borderRadius: 18, border: "1px solid var(--border)", marginBottom: 30 }}>
+          <h3 style={{ marginTop: 0, marginBottom: 15, fontSize: 18 }}>Add New Room</h3>
+          <form onSubmit={addRoom} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 15, alignItems: "end" }}>
+            <div className="field">
+              <div className="label">Room Number</div>
+              <input
+                placeholder="e.g. A101"
+                value={form.roomNumber}
+                onChange={(e) => setForm({ ...form, roomNumber: e.target.value })}
+                required
+              />
+            </div>
 
-          <div className="field">
-            <div className="label">Type</div>
-            <select value={form.roomType} onChange={(e) => setForm({ ...form, roomType: e.target.value })}>
-              <option>Single</option>
-              <option>Double</option>
-              <option>Family</option>
-              <option>Suite</option>
-            </select>
-          </div>
+            <div className="field">
+              <div className="label">Type</div>
+              <select value={form.roomType} onChange={(e) => setForm({ ...form, roomType: e.target.value })}>
+                <option>Single</option>
+                <option>Double</option>
+                <option>Family</option>
+                <option>Suite</option>
+              </select>
+            </div>
 
-          <div className="field">
-            <div className="label">Status</div>
-            <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
-              <option value="active">Active</option>
-              <option value="maintenance">Maintenance</option>
-            </select>
-          </div>
+            <div className="field">
+              <div className="label">Status</div>
+              <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
+                <option value="active">Active</option>
+                <option value="maintenance">Maintenance</option>
+              </select>
+            </div>
 
-          <button type="submit" className="btn-accent" style={{ height: 46 }}>Add Room</button>
-        </form>
-        {msg && <p style={{ marginTop: 15, fontSize: 14 }}>{msg}</p>}
-      </div>
+            <button type="submit" className="btn-accent" style={{ height: 46 }}>Add Room</button>
+          </form>
+          {msg && <p style={{ marginTop: 15, fontSize: 14 }}>{msg}</p>}
+        </div>
+      ) : (
+        <div style={{ marginBottom: 30, padding: 20, background: "#f1f5f9", borderRadius: 12 }}>
+          <p style={{ margin: 0, color: "#64748b" }}>ℹ️ Log in as an Admin to add or delete rooms.</p>
+        </div>
+      )}
 
       <div style={{ background: "#fff", borderRadius: 18, border: "1px solid var(--border)", overflow: "hidden" }}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -98,7 +115,7 @@ export default function Rooms() {
               <th style={{ textAlign: "left", padding: "14px 20px", fontSize: 13, color: "var(--muted)" }}>ROOM</th>
               <th style={{ textAlign: "left", padding: "14px 20px", fontSize: 13, color: "var(--muted)" }}>TYPE</th>
               <th style={{ textAlign: "left", padding: "14px 20px", fontSize: 13, color: "var(--muted)" }}>STATUS</th>
-              <th style={{ textAlign: "right", padding: "14px 20px", fontSize: 13, color: "var(--muted)" }}>ACTION</th>
+              {isAdmin && <th style={{ textAlign: "right", padding: "14px 20px", fontSize: 13, color: "var(--muted)" }}>ACTION</th>}
             </tr>
           </thead>
           <tbody>
@@ -120,11 +137,13 @@ export default function Rooms() {
                     {r.status}
                   </span>
                 </td>
-                <td style={{ padding: "14px 20px", textAlign: "right" }}>
-                  <button onClick={() => deleteRoom(r._id)} style={{ padding: "6px 12px", background: "#fee2e2", color: "#b91c1c", fontSize: 12 }}>
-                    Delete
-                  </button>
-                </td>
+                {isAdmin && (
+                  <td style={{ padding: "14px 20px", textAlign: "right" }}>
+                    <button onClick={() => deleteRoom(r._id)} style={{ padding: "6px 12px", background: "#fee2e2", color: "#b91c1c", fontSize: 12 }}>
+                      Delete
+                    </button>
+                  </td>
+                )}
               </tr>
             ))}
             {!loading && !rooms.length && (

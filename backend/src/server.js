@@ -11,6 +11,7 @@ app.use(express.json());
 app.get("/", (req, res) => res.send("Ocean View Resort API ✅"));
 app.use("/api/rooms", require("./routes/rooms"));
 app.use("/api/reservations", require("./routes/reservations"));
+app.use("/api/auth", require("./routes/authRoutes"));
 
 
 

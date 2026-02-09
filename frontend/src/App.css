@@ -220,11 +220,16 @@
 
 /* FOOTER */
 .footer {
-  margin-top: 40px;
-  padding: 26px 0;
+  position: fixed;       
+  bottom: 0;              
+  left: 0;
+  width: 100%;            
+  padding: 16px 0;
   background: #00224f;
   color: #fff;
-}
+  text-align: center;
+  z-index: 1000;   
+}      
 
 .footer small {
   opacity: .9;

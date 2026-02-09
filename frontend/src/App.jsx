@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./App.css";
 
@@ -7,6 +7,8 @@ import "./App.css";
 import Rooms from "./pages/Rooms";
 import Reservations from "./pages/Reservations";
 import ReservationList from "./pages/ReservationList";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 const API = "http://localhost:5000";
 
@@ -130,6 +132,21 @@ function Home() {
 }
 
 export default function App() {
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) setUser(JSON.parse(savedUser));
+  }, []);
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser(null);
+    navigate("/");
+  };
+
   return (
     <div className="app-container">
       <header className="ov-header">
@@ -146,8 +163,17 @@ export default function App() {
           </nav>
 
           <div className="header-actions">
-            <button className="ghost">Help</button>
-            <button className="btn-primary">Sign in</button>
+            {user ? (
+              <div style={{ display: "flex", alignItems: "center", gap: 15 }}>
+                <span style={{ fontSize: 13, fontWeight: 600 }}>{user.name} ({user.role})</span>
+                <button onClick={logout} className="ghost">Logout</button>
+              </div>
+            ) : (
+              <>
+                <Link to="/register" className="ghost">Register</Link>
+                <Link to="/login" className="btn-primary" style={{ textDecoration: "none" }}>Sign in</Link>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -157,6 +183,8 @@ export default function App() {
         <Route path="/rooms" element={<Rooms />} />
         <Route path="/book" element={<Reservations />} />
         <Route path="/search" element={<ReservationList />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
       </Routes>
 
       <footer className="footer">
