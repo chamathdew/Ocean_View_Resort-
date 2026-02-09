@@ -19,64 +19,71 @@ export default function ReservationList() {
       const res = await axios.get(`${API}/api/reservations/${reservationNo}`);
       setData(res.data);
     } catch {
-      setMsg("Reservation not found. Please check the number.");
+      setMsg("We couldn't find a reservation with that number. Please verify and try again.");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="container" style={{ padding: "60px 18px", maxWidth: 600 }}>
-      <div className="section-title" style={{ justifyContent: "center", textAlign: "center", flexDirection: "column" }}>
-        <h2>Find Your Reservation</h2>
-        <p style={{ color: "var(--muted)", marginTop: 8 }}>Enter your OVR number to see booking details.</p>
+    <div className="container" style={{ paddingTop: 100, paddingBottom: 150, maxWidth: 700 }}>
+      <div className="section-title" style={{ textAlign: "center", marginBottom: 48 }}>
+        <span className="badge">Booking Recovery</span>
+        <h2 style={{ fontSize: 42 }}>Track Your Sanctuary</h2>
+        <p style={{ color: "var(--text-light)", marginTop: 12 }}>Enter your unique reservation code to access your booking details and status.</p>
       </div>
 
-      <div style={{ background: "#fff", padding: 30, borderRadius: 20, border: "1px solid var(--border)", boxShadow: "var(--shadow)" }}>
-        <div style={{ display: "flex", gap: 10 }}>
+      <div style={{ background: "#fff", padding: 48, borderRadius: 32, boxShadow: 'var(--shadow-lg)', border: "1px solid var(--border)" }}>
+        <div style={{ display: "flex", gap: 16 }}>
           <div className="field" style={{ flex: 1 }}>
             <input
               placeholder="e.g. OVR-1712345678"
               value={reservationNo}
               onChange={(e) => setReservationNo(e.target.value)}
-              style={{ height: 50, fontSize: 16 }}
+              style={{ height: 56, fontSize: 16, background: '#f8fafc' }}
             />
           </div>
-          <button className="btn-primary" onClick={search} disabled={loading} style={{ height: 50, padding: "0 25px" }}>
-            {loading ? "..." : "Search"}
+          <button className="btn btn-primary" onClick={search} disabled={loading} style={{ height: 56, padding: "0 32px" }}>
+            {loading ? "Searching..." : "Retrieve Details"}
           </button>
         </div>
 
-        {msg && <p style={{ marginTop: 20, textAlign: "center", color: "#d32f2f", fontSize: 14 }}>{msg}</p>}
+        {msg && <p style={{ marginTop: 24, padding: '12px', background: '#fee2e2', color: '#991b1b', borderRadius: 12, textAlign: "center", fontSize: 14, fontWeight: 500 }}>{msg}</p>}
 
         {data && (
-          <div style={{ marginTop: 30, paddingTop: 25, borderTop: "2px dashed var(--border)" }}>
-            <div style={{ display: "grid", gap: 15 }}>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "var(--muted)" }}>Reservation No</span>
-                <span style={{ fontWeight: 800, color: "var(--primary)" }}>{data.reservationNo}</span>
+          <div style={{ marginTop: 48, paddingTop: 40, borderTop: "1px solid var(--border)", animation: 'fadeIn 0.5s ease-out' }}>
+            <div style={{ display: "grid", gap: 20 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: 'center' }}>
+                <span style={{ color: "var(--text-light)", fontWeight: 500 }}>Reservation Reference</span>
+                <span style={{ fontWeight: 800, color: "var(--primary)", fontSize: 18 }}>{data.reservationNo}</span>
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "var(--muted)" }}>Status</span>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: 'center' }}>
+                <span style={{ color: "var(--text-light)", fontWeight: 500 }}>Current Status</span>
                 <span style={{
-                  padding: "4px 10px",
-                  borderRadius: 6,
-                  background: "#e3f2fd",
-                  color: "#0d47a1",
+                  padding: "6px 16px",
+                  borderRadius: 100,
+                  background: "var(--accent-soft)",
+                  color: "var(--accent)",
                   fontSize: 12,
-                  fontWeight: 700,
-                  textTransform: "uppercase"
+                  fontWeight: 800,
+                  textTransform: "uppercase",
+                  letterSpacing: 1,
+                  border: '1px solid rgba(212, 175, 55, 0.2)'
                 }}>
-                  {data.status}
+                  {data.status.replace('_', ' ')}
                 </span>
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "var(--muted)" }}>Check-in</span>
-                <span style={{ fontWeight: 600 }}>{new Date(data.checkIn).toLocaleDateString()}</span>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: 'center' }}>
+                <span style={{ color: "var(--text-light)", fontWeight: 500 }}>Check-in Arrival</span>
+                <span style={{ fontWeight: 700, color: 'var(--primary)' }}>{new Date(data.checkIn).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "var(--muted)" }}>Check-out</span>
-                <span style={{ fontWeight: 600 }}>{new Date(data.checkOut).toLocaleDateString()}</span>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: 'center' }}>
+                <span style={{ color: "var(--text-light)", fontWeight: 500 }}>Check-out Departure</span>
+                <span style={{ fontWeight: 700, color: 'var(--primary)' }}>{new Date(data.checkOut).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+              </div>
+
+              <div style={{ marginTop: 20, padding: 24, background: 'var(--bg)', borderRadius: 20, border: '1px solid var(--border)', textAlign: 'center' }}>
+                <p style={{ margin: 0, fontSize: 13, color: 'var(--text-light)' }}>Need to make changes? Please contact our concierge desk at <br /> <strong style={{ color: 'var(--primary)' }}>+94 11 234 5678</strong></p>
               </div>
             </div>
           </div>
@@ -85,4 +92,3 @@ export default function ReservationList() {
     </div>
   );
 }
-

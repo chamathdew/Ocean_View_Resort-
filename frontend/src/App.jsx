@@ -34,37 +34,32 @@ function Home() {
     <>
       <section className="hero">
         <div className="container">
-          <span className="badge">🌴 Beachside stays · Best deals</span>
-          <h1>Find your perfect ocean-view room</h1>
-          <p>Check availability, compare room types, and reserve instantly.</p>
+          <span className="badge">Limited Offer: 20% Off Weekend Stays</span>
+          <h1>Experience Luxury Between Sea and Sky</h1>
+          <p>Indulge in an unforgettable escape at Ocean View Resort, where world-class comfort meets the tranquil beauty of the coast.</p>
 
           <div className="search-wrap">
-            <div className="search-card">
-              <div className="search-grid">
-                <div className="field">
-                  <div className="label">Check-in</div>
-                  <input type="date" />
-                </div>
-
-                <div className="field">
-                  <div className="label">Check-out</div>
-                  <input type="date" />
-                </div>
-
-                <div className="field">
-                  <div className="label">Room type</div>
-                  <select defaultValue="Deluxe">
-                    <option value="Standard">Standard</option>
-                    <option value="Deluxe">Deluxe Ocean View</option>
-                    <option value="Suite">Luxury Suite</option>
-                  </select>
-                </div>
-
-                <div className="field">
-                  <div className="label">&nbsp;</div>
-                  <button className="btn-accent">Search</button>
-                </div>
+            <div className="search-card glass">
+              <div className="field">
+                <div className="label">Check-in Date</div>
+                <input type="date" />
               </div>
+
+              <div className="field">
+                <div className="label">Check-out Date</div>
+                <input type="date" />
+              </div>
+
+              <div className="field">
+                <div className="label">Preferred Suite</div>
+                <select defaultValue="Deluxe">
+                  <option value="Standard">Standard Room</option>
+                  <option value="Deluxe">Deluxe Ocean View</option>
+                  <option value="Suite">Presidential Suite</option>
+                </select>
+              </div>
+
+              <button className="btn-accent">Check Availability</button>
             </div>
           </div>
         </div>
@@ -73,54 +68,59 @@ function Home() {
       <main className="page">
         <div className="container">
           <div className="section-title">
-            <h2>Popular rooms</h2>
-            <span className="badge">Free Wi‑Fi · Breakfast options</span>
+            <span>Our Selection</span>
+            <h2>Most Exquisite Rooms</h2>
+            <p style={{ color: "var(--text-light)", marginTop: 10 }}>Handpicked for the ultimate comfort and aesthetic pleasure.</p>
           </div>
 
           <div className="room-grid">
             {loading ? (
-              <p>Loading rooms...</p>
+              <div style={{ textAlign: 'center', gridColumn: '1/-1', padding: 50 }}>
+                <div className="loading-spinner"></div>
+                <p>Curating your experience...</p>
+              </div>
             ) : rooms.length > 0 ? (
               rooms.map((room) => (
                 <article className="room-card" key={room._id}>
-                  <img
-                    className="room-img"
-                    src={
-                      room.roomType === "Suite"
-                        ? "https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=1200&q=60"
-                        : room.roomType === "Double"
-                          ? "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=60"
-                          : "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=60"
-                    }
-                    alt={room.roomType}
-                    loading="lazy"
-                  />
+                  <div className="room-img-wrap">
+                    <img
+                      className="room-img"
+                      src={
+                        room.roomType === "Suite"
+                          ? "https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=1200&q=80"
+                          : room.roomType === "Double"
+                            ? "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80"
+                            : "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80"
+                      }
+                      alt={room.roomType}
+                      loading="lazy"
+                    />
+                  </div>
                   <div className="room-body">
                     <h3 className="room-name">
-                      {room.roomType} (Room {room.roomNumber})
+                      {room.roomType} Room {room.roomNumber}
                     </h3>
                     <div className="room-meta">
-                      Balcony · King bed · Free Wi‑Fi
+                      <span>• 25m²</span>
+                      <span>• Ocean View</span>
+                      <span>• Free Wi-Fi</span>
                     </div>
                     <div className="price-row">
-                      <div>
-                        <div className="price">
-                          LKR {room.roomType === "Suite" ? "42,000" : "28,000"}
-                        </div>
-                        <div className="per">per night</div>
+                      <div className="price">
+                        LKR {room.roomType === "Suite" ? "42,000" : "28,000"} <span>/ night</span>
                       </div>
-                      <Link to="/book" className="btn-primary">
-                        Reserve
+                      <Link to="/book" className="btn btn-primary">
+                        Reserve Now
                       </Link>
                     </div>
                   </div>
                 </article>
               ))
             ) : (
-              <div style={{ textAlign: "center", gridColumn: "1 / -1", padding: "40px" }}>
-                <p>No rooms found in the backend. Add some in the Manage Rooms page!</p>
-                <Link to="/rooms" className="btn-primary" style={{ display: "inline-block", marginTop: "10px" }}>
-                  Go to Manage Rooms
+              <div style={{ textAlign: "center", gridColumn: "1 / -1", padding: "80px", background: '#fff', borderRadius: 24 }}>
+                <p>Welcome to Ocean View Resort. We are preparing our first rooms.</p>
+                <Link to="/rooms" className="btn btn-primary" style={{ display: "inline-block", marginTop: "20px" }}>
+                  Manage Inventory
                 </Link>
               </div>
             )}
@@ -157,21 +157,24 @@ export default function App() {
           </Link>
 
           <nav className="header-nav">
-            <Link to="/rooms" className="nav-link">Rooms</Link>
-            <Link to="/book" className="nav-link">Book Now</Link>
-            <Link to="/search" className="nav-link">Find Reservation</Link>
+            <Link to="/rooms" className="nav-link">Suites</Link>
+            <Link to="/book" className="nav-link">Book Room</Link>
+            <Link to="/search" className="nav-link">My Booking</Link>
           </nav>
 
           <div className="header-actions">
             {user ? (
-              <div style={{ display: "flex", alignItems: "center", gap: 15 }}>
-                <span style={{ fontSize: 13, fontWeight: 600 }}>{user.name} ({user.role})</span>
-                <button onClick={logout} className="ghost">Logout</button>
+              <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--primary)' }}>{user.name}</div>
+                  <div style={{ fontSize: 11, textTransform: 'uppercase', color: 'var(--accent)' }}>{user.role} Member</div>
+                </div>
+                <button onClick={logout} className="ghost" style={{ padding: '8px 16px' }}>Logout</button>
               </div>
             ) : (
               <>
-                <Link to="/register" className="ghost">Register</Link>
-                <Link to="/login" className="btn-primary" style={{ textDecoration: "none" }}>Sign in</Link>
+                <Link to="/register" className="nav-link" style={{ marginRight: 10 }}>Register</Link>
+                <Link to="/login" className="btn btn-primary" style={{ textDecoration: "none" }}>Member Sign In</Link>
               </>
             )}
           </div>
@@ -189,7 +192,35 @@ export default function App() {
 
       <footer className="footer">
         <div className="container">
-          <small>© 2026 Ocean View Resort · All rights reserved</small>
+          <div className="footer-grid">
+            <div className="footer-col">
+              <Link to="/" className="brand" style={{ color: '#fff', marginBottom: 20 }}>
+                <span className="brand-dot" /> Ocean View
+              </Link>
+              <p style={{ opacity: 0.6, fontSize: 14 }}>
+                A sanctuary of peace and luxury since 1998. Located on the pristine southern coast, offering breathtaking views and world-class hospitality.
+              </p>
+            </div>
+            <div className="footer-col">
+              <h4>Quick Links</h4>
+              <ul className="footer-links">
+                <li><Link to="/rooms">All Suites</Link></li>
+                <li><Link to="/book">Reservations</Link></li>
+                <li><Link to="/login">Member Portal</Link></li>
+              </ul>
+            </div>
+            <div className="footer-col">
+              <h4>Contact Us</h4>
+              <ul className="footer-links">
+                <li>📍 Galle Road, South Coast, Sri Lanka</li>
+                <li>📞 +94 11 234 5678</li>
+                <li>✉️ stay@oceanviewresort.com</li>
+              </ul>
+            </div>
+          </div>
+          <div className="footer-bottom">
+            <p>© 2026 Ocean View Resort · Redefining coastal luxury · Crafted by Dewmovies</p>
+          </div>
         </div>
       </footer>
     </div>

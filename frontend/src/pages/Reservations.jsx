@@ -31,7 +31,7 @@ export default function Reservations() {
         params: { roomType, checkIn, checkOut },
       });
       setAvailableRooms(data);
-      if (!data.length) setMsg("No rooms available for these dates.");
+      if (!data.length) setMsg("We're sorry, no suites of this type are available for the selected dates.");
     } catch (err) {
       setMsg(err?.response?.data?.message || "Error checking availability");
     } finally {
@@ -44,11 +44,11 @@ export default function Reservations() {
     setReservationNo("");
 
     if (!selectedRoomId) {
-      setMsg("Please select a room first.");
+      setMsg("Selection Required: Please choose a suite from the available options.");
       return;
     }
     if (!fullName || !contactNumber) {
-      setMsg("Full name and contact number are required.");
+      setMsg("Information Required: Please provide your full name and contact details.");
       return;
     }
 
@@ -66,7 +66,7 @@ export default function Reservations() {
       const { data } = await axios.post(`${API}/api/reservations`, payload);
 
       setReservationNo(data.reservationNo);
-      setMsg("✅ Reservation created successfully!");
+      setMsg("✅ Your sanctuary awaits! Booking confirmed.");
 
       // reset guest fields
       setFullName("");
@@ -80,20 +80,21 @@ export default function Reservations() {
   }
 
   return (
-    <div className="container" style={{ padding: "40px 18px" }}>
+    <div className="container" style={{ paddingTop: 60, paddingBottom: 100 }}>
       <div className="section-title">
-        <h2>Book a Room</h2>
-        <span className="badge">Instant Confirmation</span>
+        <span className="badge">Booking Portal</span>
+        <h2>Reserve Your Experience</h2>
+        <p style={{ color: 'var(--text-light)' }}>Secure your stay at Ocean View Resort in just a few steps.</p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr", gap: 30 }}>
-        {/* Left Column: Search */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-          <div style={{ background: "#fff", padding: 24, borderRadius: 18, border: "1px solid var(--border)" }}>
-            <h3 style={{ marginTop: 0, marginBottom: 20, fontSize: 18 }}>1) Check Availability</h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: 15 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 40, alignItems: 'start' }}>
+        {/* Left Column: Search & Selection */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+          <div style={{ background: "#fff", padding: 32, borderRadius: 24, boxShadow: 'var(--shadow-md)', border: "1px solid var(--border)" }}>
+            <h3 style={{ marginTop: 0, marginBottom: 24, fontSize: 20 }}>1. Search Availability</h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
               <div className="field">
-                <div className="label">Room Type</div>
+                <div className="label">Suite Category</div>
                 <select value={roomType} onChange={(e) => setRoomType(e.target.value)}>
                   <option>Single</option>
                   <option>Double</option>
@@ -102,110 +103,125 @@ export default function Reservations() {
                 </select>
               </div>
 
-              <div className="field">
-                <div className="label">Check-in Date</div>
-                <input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 15 }}>
+                <div className="field">
+                  <div className="label">Check-in</div>
+                  <input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} />
+                </div>
+                <div className="field">
+                  <div className="label">Check-out</div>
+                  <input type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} />
+                </div>
               </div>
 
-              <div className="field">
-                <div className="label">Check-out Date</div>
-                <input type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} />
-              </div>
-
-              <button className="btn-primary" onClick={checkAvailability} disabled={loading} style={{ marginTop: 10 }}>
-                {loading ? "Checking..." : "Check Availability"}
+              <button className="btn btn-primary" onClick={checkAvailability} disabled={loading} style={{ width: '100%', marginTop: 10 }}>
+                {loading ? "Searching..." : "Find Available Suites"}
               </button>
             </div>
           </div>
 
-          <div style={{ background: "#fff", padding: 24, borderRadius: 18, border: "1px solid var(--border)" }}>
-            <h3 style={{ marginTop: 0, marginBottom: 20, fontSize: 18 }}>2) Select Room</h3>
+          <div style={{ background: "#fff", padding: 32, borderRadius: 24, boxShadow: 'var(--shadow-md)', border: "1px solid var(--border)" }}>
+            <h3 style={{ marginTop: 0, marginBottom: 24, fontSize: 20 }}>2. Select Your Suite</h3>
             {availableRooms.length > 0 ? (
-              <div style={{ display: "grid", gap: 10 }}>
+              <div style={{ display: "grid", gap: 12 }}>
                 {availableRooms.map((room) => (
-                  <button
+                  <div
                     key={room._id}
                     onClick={() => setSelectedRoomId(room._id)}
                     style={{
-                      padding: "12px 16px",
-                      borderRadius: 12,
+                      padding: "20px",
+                      borderRadius: 16,
                       border: selectedRoomId === room._id ? "2px solid var(--accent)" : "1px solid var(--border)",
-                      background: selectedRoomId === room._id ? "rgba(254,187,2,.08)" : "transparent",
-                      textAlign: "left",
+                      background: selectedRoomId === room._id ? "var(--accent-soft)" : "#f8fafc",
                       cursor: "pointer",
-                      transition: "all 0.2s"
+                      transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
                     }}
                   >
-                    <div style={{ fontWeight: 700 }}>Room {room.roomNumber}</div>
-                    <div style={{ fontSize: 12, color: "var(--muted)" }}>{room.roomType} · {room.status}</div>
-                  </button>
+                    <div>
+                      <div style={{ fontWeight: 800, color: 'var(--primary)', fontSize: 16 }}>Suite {room.roomNumber}</div>
+                      <div style={{ fontSize: 13, color: "var(--text-light)", marginTop: 4 }}>{room.roomType} Category • Pool Side</div>
+                    </div>
+                    {selectedRoomId === room._id && (
+                      <div style={{ background: 'var(--accent)', color: 'var(--white)', padding: '4px 12px', borderRadius: 100, fontSize: 11, fontWeight: 700 }}>SELECTED</div>
+                    )}
+                  </div>
                 ))}
               </div>
             ) : (
-              <p style={{ color: "var(--muted)", fontSize: 14 }}>Search above to see available rooms.</p>
+              <div style={{ textAlign: 'center', padding: '20px 0', color: "var(--text-light)", fontSize: 14 }}>
+                <p>Enter your travel dates above to see available suites.</p>
+              </div>
             )}
           </div>
         </div>
 
         {/* Right Column: Guest Details */}
-        <div style={{ background: "#fff", padding: 30, borderRadius: 18, border: "1px solid var(--border)", height: "fit-content" }}>
-          <h3 style={{ marginTop: 0, marginBottom: 25, fontSize: 18 }}>3) Guest Details & Payment</h3>
+        <div style={{ background: "#fff", padding: 40, borderRadius: 24, boxShadow: 'var(--shadow-lg)', border: "1px solid var(--border)", position: 'sticky', top: 120 }}>
+          <h3 style={{ marginTop: 0, marginBottom: 32, fontSize: 20 }}>3. Provide Guest Details</h3>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
             <div className="field">
-              <div className="label">Full Name*</div>
+              <div className="label">Full Name</div>
               <input
-                placeholder="Enter guest name"
+                placeholder="As per Passport / ID"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
               />
             </div>
 
             <div className="field">
-              <div className="label">Contact Number*</div>
+              <div className="label">Contact Number</div>
               <input
-                placeholder="Phone number"
+                placeholder="+94 7X XXX XXXX"
                 value={contactNumber}
                 onChange={(e) => setContactNumber(e.target.value)}
               />
             </div>
 
             <div className="field">
-              <div className="label">Home Address</div>
+              <div className="label">Special Requests (Optional)</div>
               <input
-                placeholder="Mailing address"
+                placeholder="Dietary needs, airport pick-up, etc."
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
               />
             </div>
 
-            <div style={{ marginTop: 10, padding: 20, background: "#f8fafc", borderRadius: 14 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                <span>Subtotal</span>
-                <span style={{ fontWeight: 700 }}>LKR 28,000</span>
+            <div style={{ margin: '10px 0', padding: 24, background: "var(--bg)", borderRadius: 20, border: '1px solid var(--border)' }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+                <span style={{ color: 'var(--text-light)' }}>Suite Rate / Night</span>
+                <span style={{ fontWeight: 700 }}>LKR {roomType === "Suite" ? "42,000" : "28,000"}</span>
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, color: "var(--muted)" }}>
-                <span>Taxes & Fees</span>
-                <span>Included</span>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+                <span style={{ color: 'var(--text-light)' }}>Taxes & Services</span>
+                <span style={{ color: 'var(--accent)', fontWeight: 600 }}>Included</span>
+              </div>
+              <div style={{ height: 1, background: 'var(--border)', margin: '16px 0' }}></div>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 18, fontWeight: 800 }}>
+                <span>Estimated Total</span>
+                <span style={{ color: 'var(--primary)' }}>LKR {roomType === "Suite" ? "42,000" : "28,000"}</span>
               </div>
             </div>
 
-            <button className="btn-accent" onClick={bookNow} disabled={loading || !selectedRoomId} style={{ height: 52, fontSize: 16 }}>
-              {loading ? "Processing..." : "Confirm Reservation"}
+            <button className="btn btn-accent" onClick={bookNow} disabled={loading || !selectedRoomId} style={{ height: 56, fontSize: 16, width: '100%' }}>
+              {loading ? "Confirming..." : "Finalize Booking"}
             </button>
 
             {reservationNo && (
-              <div style={{ background: "#e8f5e9", padding: 15, borderRadius: 12, border: "1px solid #c8e6c9", textAlign: "center" }}>
-                <div style={{ fontSize: 13, color: "#2e7d32" }}>Success! Your Reservation Number:</div>
-                <div style={{ fontSize: 20, fontWeight: 900, color: "#1b5e20" }}>{reservationNo}</div>
+              <div style={{ background: "#dcfce7", padding: 24, borderRadius: 20, border: "1px solid #86efac", textAlign: "center", animation: 'fadeIn 0.5s ease-out' }}>
+                <div style={{ fontSize: 13, color: "#166534", fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}>Booking Confirmed</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: "#14532d", margin: '8px 0' }}>{reservationNo}</div>
+                <div style={{ fontSize: 12, color: "#166534" }}>Please present this code at check-in.</div>
               </div>
             )}
 
-            {msg && <p style={{ textAlign: "center", color: msg.includes("✅") ? "#2e7d32" : "#d32f2f", fontSize: 14 }}>{msg}</p>}
+            {msg && <p style={{ textAlign: "center", color: msg.includes("✅") ? "#166534" : "#991b1b", fontSize: 14, fontWeight: 500, margin: 0 }}>{msg}</p>}
           </div>
         </div>
       </div>
     </div>
   );
 }
-

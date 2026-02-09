@@ -60,16 +60,17 @@ export default function Rooms() {
   const isAdmin = user && user.role === "admin";
 
   return (
-    <div className="container" style={{ padding: "40px 18px" }}>
+    <div className="container" style={{ paddingTop: 60, paddingBottom: 100 }}>
       <div className="section-title">
-        <h2>Manage Rooms</h2>
-        <span className="badge">{rooms.length} Total Rooms</span>
+        <span className="badge">Inventory</span>
+        <h2>Manage Resort Suites</h2>
+        <p style={{ color: 'var(--text-light)' }}>View and edit the available inventory of rooms and suites.</p>
       </div>
 
       {isAdmin ? (
-        <div style={{ background: "#fff", padding: 24, borderRadius: 18, border: "1px solid var(--border)", marginBottom: 30 }}>
-          <h3 style={{ marginTop: 0, marginBottom: 15, fontSize: 18 }}>Add New Room</h3>
-          <form onSubmit={addRoom} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 15, alignItems: "end" }}>
+        <div style={{ background: "#fff", padding: 32, borderRadius: 24, boxShadow: 'var(--shadow-md)', border: "1px solid var(--border)", marginBottom: 48 }}>
+          <h3 style={{ marginTop: 0, marginBottom: 24, fontSize: 22 }}>Add New Suite</h3>
+          <form onSubmit={addRoom} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 24, alignItems: "end" }}>
             <div className="field">
               <div className="label">Room Number</div>
               <input
@@ -81,7 +82,7 @@ export default function Rooms() {
             </div>
 
             <div className="field">
-              <div className="label">Type</div>
+              <div className="label">Suite Type</div>
               <select value={form.roomType} onChange={(e) => setForm({ ...form, roomType: e.target.value })}>
                 <option>Single</option>
                 <option>Double</option>
@@ -91,56 +92,58 @@ export default function Rooms() {
             </div>
 
             <div className="field">
-              <div className="label">Status</div>
+              <div className="label">Availablity Status</div>
               <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
-                <option value="active">Active</option>
+                <option value="active">Available</option>
                 <option value="maintenance">Maintenance</option>
               </select>
             </div>
 
-            <button type="submit" className="btn-accent" style={{ height: 46 }}>Add Room</button>
+            <button type="submit" className="btn-accent" style={{ height: 50 }}>Register Suite</button>
           </form>
-          {msg && <p style={{ marginTop: 15, fontSize: 14 }}>{msg}</p>}
+          {msg && <p style={{ marginTop: 20, fontSize: 14, fontWeight: 600, color: msg.includes('✅') ? 'green' : 'red' }}>{msg}</p>}
         </div>
       ) : (
-        <div style={{ marginBottom: 30, padding: 20, background: "#f1f5f9", borderRadius: 12 }}>
-          <p style={{ margin: 0, color: "#64748b" }}>ℹ️ Log in as an Admin to add or delete rooms.</p>
+        <div style={{ marginBottom: 48, padding: 24, background: "var(--accent-soft)", borderRadius: 16, border: '1px solid var(--accent)' }}>
+          <p style={{ margin: 0, color: "var(--primary)", fontWeight: 600 }}>ℹ️ Restricted Access: Administrative privileges are required to modify the inventory.</p>
         </div>
       )}
 
-      <div style={{ background: "#fff", borderRadius: 18, border: "1px solid var(--border)", overflow: "hidden" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <div className="table-container">
+        <table>
           <thead>
-            <tr style={{ background: "#f8fafc", borderBottom: "1px solid var(--border)" }}>
-              <th style={{ textAlign: "left", padding: "14px 20px", fontSize: 13, color: "var(--muted)" }}>ROOM</th>
-              <th style={{ textAlign: "left", padding: "14px 20px", fontSize: 13, color: "var(--muted)" }}>TYPE</th>
-              <th style={{ textAlign: "left", padding: "14px 20px", fontSize: 13, color: "var(--muted)" }}>STATUS</th>
-              {isAdmin && <th style={{ textAlign: "right", padding: "14px 20px", fontSize: 13, color: "var(--muted)" }}>ACTION</th>}
+            <tr>
+              <th>Suite No</th>
+              <th>Category</th>
+              <th>Inventory Status</th>
+              {isAdmin && <th style={{ textAlign: "right" }}>Control</th>}
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan="4" style={{ padding: 40, textAlign: "center" }}>Loading...</td></tr>
+              <tr><td colSpan="4" style={{ padding: 60, textAlign: "center" }}>Refreshing database...</td></tr>
             ) : rooms.map((r) => (
-              <tr key={r._id} style={{ borderBottom: "1px solid var(--border)" }}>
-                <td style={{ padding: "14px 20px", fontWeight: 700 }}>{r.roomNumber}</td>
-                <td style={{ padding: "14px 20px" }}>{r.roomType}</td>
-                <td style={{ padding: "14px 20px" }}>
+              <tr key={r._id}>
+                <td style={{ fontWeight: 700, fontSize: 16 }}>{r.roomNumber}</td>
+                <td style={{ color: 'var(--text-light)' }}>{r.roomType} Suite</td>
+                <td>
                   <span style={{
-                    padding: "4px 8px",
-                    borderRadius: 6,
+                    padding: "6px 14px",
+                    borderRadius: 100,
                     fontSize: 12,
-                    background: r.status === "active" ? "#e8f5e9" : "#fff3e0",
-                    color: r.status === "active" ? "#2e7d32" : "#ef6c00",
-                    fontWeight: 700
+                    background: r.status === "active" ? "#dcfce7" : "#fee2e2",
+                    color: r.status === "active" ? "#166534" : "#991b1b",
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px'
                   }}>
-                    {r.status}
+                    {r.status === 'active' ? 'Available' : 'Maintenance'}
                   </span>
                 </td>
                 {isAdmin && (
-                  <td style={{ padding: "14px 20px", textAlign: "right" }}>
-                    <button onClick={() => deleteRoom(r._id)} style={{ padding: "6px 12px", background: "#fee2e2", color: "#b91c1c", fontSize: 12 }}>
-                      Delete
+                  <td style={{ textAlign: "right" }}>
+                    <button onClick={() => deleteRoom(r._id)} className="ghost" style={{ padding: "6px 16px", color: "#b91c1c", borderColor: '#fee2e2', background: '#fff' }}>
+                      Remove
                     </button>
                   </td>
                 )}
@@ -148,7 +151,7 @@ export default function Rooms() {
             ))}
             {!loading && !rooms.length && (
               <tr>
-                <td colSpan="4" style={{ padding: 40, textAlign: "center", color: "var(--muted)" }}>No rooms added yet.</td>
+                <td colSpan="4" style={{ padding: 60, textAlign: "center", color: "var(--text-light)" }}>No suites currently registered in the system.</td>
               </tr>
             )}
           </tbody>
@@ -157,4 +160,3 @@ export default function Rooms() {
     </div>
   );
 }
-
