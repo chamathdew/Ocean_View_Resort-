@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { downloadInvoice } from "../utils/invoice";
 
 const API = "http://localhost:5000";
 
@@ -18,11 +19,11 @@ export default function Reservations() {
 
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
-  const [reservationNo, setReservationNo] = useState("");
+  const [reservationData, setReservationData] = useState(null);
 
   async function checkAvailability() {
     setMsg("");
-    setReservationNo("");
+    setReservationData(null);
     setSelectedRoomId("");
     setLoading(true);
 
@@ -41,7 +42,7 @@ export default function Reservations() {
 
   async function bookNow() {
     setMsg("");
-    setReservationNo("");
+    setReservationData(null);
 
     if (!selectedRoomId) {
       setMsg("Selection Required: Please choose a suite from the available options.");
@@ -65,7 +66,7 @@ export default function Reservations() {
 
       const { data } = await axios.post(`${API}/api/reservations`, payload);
 
-      setReservationNo(data.reservationNo);
+      setReservationData(data);
       setMsg("✅ Your sanctuary awaits! Booking confirmed.");
 
       // reset guest fields
@@ -90,7 +91,7 @@ export default function Reservations() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 40, alignItems: 'start' }}>
         {/* Left Column: Search & Selection */}
         <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
-          <div style={{ background: "#fff", padding: 32, borderRadius: 24, boxShadow: 'var(--shadow-md)', border: "1px solid var(--border)" }}>
+          <div style={{ background: "var(--card)", padding: 32, borderRadius: 24, boxShadow: 'var(--shadow-md)', border: "1px solid var(--border)" }}>
             <h3 style={{ marginTop: 0, marginBottom: 24, fontSize: 20 }}>1. Search Availability</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
               <div className="field">
@@ -120,7 +121,7 @@ export default function Reservations() {
             </div>
           </div>
 
-          <div style={{ background: "#fff", padding: 32, borderRadius: 24, boxShadow: 'var(--shadow-md)', border: "1px solid var(--border)" }}>
+          <div style={{ background: "var(--card)", padding: 32, borderRadius: 24, boxShadow: 'var(--shadow-md)', border: "1px solid var(--border)" }}>
             <h3 style={{ marginTop: 0, marginBottom: 24, fontSize: 20 }}>2. Select Your Suite</h3>
             {availableRooms.length > 0 ? (
               <div style={{ display: "grid", gap: 12 }}>
@@ -132,7 +133,7 @@ export default function Reservations() {
                       padding: "20px",
                       borderRadius: 16,
                       border: selectedRoomId === room._id ? "2px solid var(--accent)" : "1px solid var(--border)",
-                      background: selectedRoomId === room._id ? "var(--accent-soft)" : "#f8fafc",
+                      background: selectedRoomId === room._id ? "var(--accent-soft)" : "var(--bg)",
                       cursor: "pointer",
                       transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                       display: 'flex',
@@ -145,7 +146,7 @@ export default function Reservations() {
                       <div style={{ fontSize: 13, color: "var(--text-light)", marginTop: 4 }}>{room.roomType} Category • Pool Side</div>
                     </div>
                     {selectedRoomId === room._id && (
-                      <div style={{ background: 'var(--accent)', color: 'var(--white)', padding: '4px 12px', borderRadius: 100, fontSize: 11, fontWeight: 700 }}>SELECTED</div>
+                      <div style={{ background: 'var(--accent)', color: 'var(--primary)', padding: '4px 12px', borderRadius: 100, fontSize: 11, fontWeight: 700 }}>SELECTED</div>
                     )}
                   </div>
                 ))}
@@ -159,7 +160,7 @@ export default function Reservations() {
         </div>
 
         {/* Right Column: Guest Details */}
-        <div style={{ background: "#fff", padding: 40, borderRadius: 24, boxShadow: 'var(--shadow-lg)', border: "1px solid var(--border)", position: 'sticky', top: 120 }}>
+        <div style={{ background: "var(--card)", padding: 40, borderRadius: 24, boxShadow: 'var(--shadow-lg)', border: "1px solid var(--border)", position: 'sticky', top: 120 }}>
           <h3 style={{ marginTop: 0, marginBottom: 32, fontSize: 20 }}>3. Provide Guest Details</h3>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
@@ -210,15 +211,22 @@ export default function Reservations() {
               {loading ? "Confirming..." : "Finalize Booking"}
             </button>
 
-            {reservationNo && (
-              <div style={{ background: "#dcfce7", padding: 24, borderRadius: 20, border: "1px solid #86efac", textAlign: "center", animation: 'fadeIn 0.5s ease-out' }}>
-                <div style={{ fontSize: 13, color: "#166534", fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}>Booking Confirmed</div>
-                <div style={{ fontSize: 24, fontWeight: 800, color: "#14532d", margin: '8px 0' }}>{reservationNo}</div>
-                <div style={{ fontSize: 12, color: "#166534" }}>Please present this code at check-in.</div>
+            {reservationData && (
+              <div style={{ background: "var(--accent-soft)", padding: 24, borderRadius: 20, border: "1px solid var(--accent)", textAlign: "center", animation: 'fadeIn 0.5s ease-out' }}>
+                <div style={{ fontSize: 13, color: "var(--accent)", fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}>Booking Confirmed</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: "var(--primary)", margin: '8px 0' }}>{reservationData.reservationNo}</div>
+                <button
+                  onClick={() => downloadInvoice(reservationData)}
+                  className="btn btn-primary"
+                  style={{ width: '100%', marginTop: 15, fontSize: 14 }}
+                >
+                  Download PDF Invoice
+                </button>
+                <div style={{ fontSize: 12, color: "var(--text-light)", marginTop: 10 }}>Please present this code at check-in.</div>
               </div>
             )}
 
-            {msg && <p style={{ textAlign: "center", color: msg.includes("✅") ? "#166534" : "#991b1b", fontSize: 14, fontWeight: 500, margin: 0 }}>{msg}</p>}
+            {msg && <p style={{ textAlign: "center", color: msg.includes("✅") ? "var(--accent)" : "#991b1b", fontSize: 14, fontWeight: 500, margin: 0 }}>{msg}</p>}
           </div>
         </div>
       </div>

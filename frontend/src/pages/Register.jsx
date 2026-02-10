@@ -21,7 +21,7 @@ export default function Register() {
 
     return (
         <div className="container" style={{ maxWidth: 500, paddingTop: 100, paddingBottom: 100 }}>
-            <div style={{ background: "#fff", padding: 48, borderRadius: 32, boxShadow: 'var(--shadow-lg)', border: "1px solid var(--border)" }}>
+            <div style={{ background: "var(--card)", padding: 48, borderRadius: 32, boxShadow: 'var(--shadow-lg)', border: "1px solid var(--border)" }}>
                 <div style={{ textAlign: 'center', marginBottom: 32 }}>
                     <h2 style={{ fontSize: 32, marginBottom: 8 }}>Join the Resort</h2>
                     <p style={{ color: 'var(--text-light)', margin: 0 }}>Create an account to unlock exclusive benefits.</p>

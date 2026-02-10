@@ -68,7 +68,7 @@ export default function Rooms() {
       </div>
 
       {isAdmin ? (
-        <div style={{ background: "#fff", padding: 32, borderRadius: 24, boxShadow: 'var(--shadow-md)', border: "1px solid var(--border)", marginBottom: 48 }}>
+        <div style={{ background: "var(--card)", padding: 32, borderRadius: 24, boxShadow: 'var(--shadow-md)', border: "1px solid var(--border)", marginBottom: 48 }}>
           <h3 style={{ marginTop: 0, marginBottom: 24, fontSize: 22 }}>Add New Suite</h3>
           <form onSubmit={addRoom} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 24, alignItems: "end" }}>
             <div className="field">
@@ -142,7 +142,7 @@ export default function Rooms() {
                 </td>
                 {isAdmin && (
                   <td style={{ textAlign: "right" }}>
-                    <button onClick={() => deleteRoom(r._id)} className="ghost" style={{ padding: "6px 16px", color: "#b91c1c", borderColor: '#fee2e2', background: '#fff' }}>
+                    <button onClick={() => deleteRoom(r._id)} className="ghost" style={{ padding: "6px 16px", color: "#b91c1c", borderColor: 'var(--border)', background: 'var(--card)' }}>
                       Remove
                     </button>
                   </td>

@@ -9,6 +9,7 @@ import Reservations from "./pages/Reservations";
 import ReservationList from "./pages/ReservationList";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import About from "./pages/About";
 
 const API = "http://localhost:5000";
 
@@ -133,12 +134,22 @@ function Home() {
 
 export default function App() {
   const [user, setUser] = useState(null);
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
   const navigate = useNavigate();
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
     if (savedUser) setUser(JSON.parse(savedUser));
-  }, []);
+
+    // theme init
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    const next = theme === "light" ? "dark" : "light";
+    setTheme(next);
+    localStorage.setItem("theme", next);
+  };
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -146,6 +157,8 @@ export default function App() {
     setUser(null);
     navigate("/");
   };
+
+  const isAdmin = user && user.role === "admin";
 
   return (
     <div className="app-container">
@@ -157,12 +170,16 @@ export default function App() {
           </Link>
 
           <nav className="header-nav">
-            <Link to="/rooms" className="nav-link">Suites</Link>
+            {isAdmin && <Link to="/rooms" className="nav-link">Inventory</Link>}
+            <Link to="/about" className="nav-link">About Us</Link>
             <Link to="/book" className="nav-link">Book Room</Link>
             <Link to="/search" className="nav-link">My Booking</Link>
           </nav>
 
           <div className="header-actions">
+            <button onClick={toggleTheme} className="ghost" style={{ padding: '8px 12px', marginRight: 15, fontSize: 18 }}>
+              {theme === 'light' ? '🌙' : '☀️'}
+            </button>
             {user ? (
               <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
                 <div style={{ textAlign: 'right' }}>
@@ -186,6 +203,7 @@ export default function App() {
         <Route path="/rooms" element={<Rooms />} />
         <Route path="/book" element={<Reservations />} />
         <Route path="/search" element={<ReservationList />} />
+        <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>
@@ -204,6 +222,7 @@ export default function App() {
             <div className="footer-col">
               <h4>Quick Links</h4>
               <ul className="footer-links">
+                <li><Link to="/about">Our Story</Link></li>
                 <li><Link to="/rooms">All Suites</Link></li>
                 <li><Link to="/book">Reservations</Link></li>
                 <li><Link to="/login">Member Portal</Link></li>

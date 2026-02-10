@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import { downloadInvoice } from "../utils/invoice";
 
 const API = "http://localhost:5000";
 
@@ -18,8 +19,8 @@ export default function ReservationList() {
     try {
       const res = await axios.get(`${API}/api/reservations/${reservationNo}`);
       setData(res.data);
-    } catch {
-      setMsg("We couldn't find a reservation with that number. Please verify and try again.");
+    } catch (err) {
+      setMsg(err?.response?.data?.message || "We couldn't find a reservation with that number. Please verify and try again.");
     } finally {
       setLoading(false);
     }
@@ -33,7 +34,7 @@ export default function ReservationList() {
         <p style={{ color: "var(--text-light)", marginTop: 12 }}>Enter your unique reservation code to access your booking details and status.</p>
       </div>
 
-      <div style={{ background: "#fff", padding: 48, borderRadius: 32, boxShadow: 'var(--shadow-lg)', border: "1px solid var(--border)" }}>
+      <div style={{ background: "var(--card)", padding: 48, borderRadius: 32, boxShadow: 'var(--shadow-lg)', border: "1px solid var(--border)" }}>
         <div style={{ display: "flex", gap: 16 }}>
           <div className="field" style={{ flex: 1 }}>
             <input
@@ -55,7 +56,10 @@ export default function ReservationList() {
             <div style={{ display: "grid", gap: 20 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: 'center' }}>
                 <span style={{ color: "var(--text-light)", fontWeight: 500 }}>Reservation Reference</span>
-                <span style={{ fontWeight: 800, color: "var(--primary)", fontSize: 18 }}>{data.reservationNo}</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <span style={{ fontWeight: 800, color: "var(--primary)", fontSize: 18 }}>{data.reservationNo}</span>
+                  <button onClick={() => downloadInvoice(data)} className="ghost" style={{ padding: "6px 14px", fontSize: 12 }}>📄 Download PDF</button>
+                </div>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: 'center' }}>
                 <span style={{ color: "var(--text-light)", fontWeight: 500 }}>Current Status</span>

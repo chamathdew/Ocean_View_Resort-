@@ -61,7 +61,25 @@ router.post("/", async (req, res) => {
       checkOut,
     });
 
-    res.status(201).json(reservation);
+    const populated = await Reservation.findById(reservation._id).populate("guestId roomId");
+    res.status(201).json(populated);
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+});
+
+
+/* 3️⃣ GET RESERVATION BY NO */
+router.get("/:reservationNo", async (req, res) => {
+  try {
+    const reservation = await Reservation.findOne({
+      reservationNo: req.params.reservationNo,
+    }).populate("guestId roomId");
+
+    if (!reservation)
+      return res.status(404).json({ message: "Reservation not found" });
+
+    res.json(reservation);
   } catch (e) {
     res.status(500).json({ message: e.message });
   }
