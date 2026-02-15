@@ -1,35 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { downloadInvoice } from "../utils/invoice";
+import { ROOM_DATA } from "../utils/roomData";
 
 const API = "http://localhost:5000";
-
-const ROOM_INFO = {
-  Single: {
-    description: "A cozy sanctuary perfect for solo travelers, featuring garden views and premium linens.",
-    amenities: ["Queen Bed", "Free WiFi", "Garden View", "Mini Bar"],
-    capacity: "1 Adult",
-    price: 28000
-  },
-  Double: {
-    description: "Elegant and spacious, ideal for couples seeking a romantic getaway with a private balcony.",
-    amenities: ["King Bed", "Ocean Glimpse", "Private Balcony", "Smart TV"],
-    capacity: "2 Participants",
-    price: 35000
-  },
-  Family: {
-    description: "The ultimate family retreat with multiple beds, a dedicated living space, and kid-friendly amenities.",
-    amenities: ["2 Queen Beds", "Living Area", "Pool Access", "2 Bathrooms"],
-    capacity: "4 Guests",
-    price: 48000
-  },
-  Suite: {
-    description: "Our most prestigious accommodation offering panoramic ocean views and exclusive butler service.",
-    amenities: ["Panoramic Ocean View", "Jacuzzi", "Butler Service", "Champagne on Arrival"],
-    capacity: "2 Guests",
-    price: 65000
-  }
-};
 
 export default function Reservations() {
   // search availability
@@ -49,7 +23,7 @@ export default function Reservations() {
   const [reservationData, setReservationData] = useState(null);
 
   const selectedRoom = availableRooms.find(r => r._id === selectedRoomId);
-  const currentRoomInfo = ROOM_INFO[roomType] || ROOM_INFO.Double;
+  const currentRoomInfo = ROOM_DATA[roomType] || ROOM_DATA.Double;
 
   async function checkAvailability() {
     setMsg("");
@@ -121,6 +95,66 @@ export default function Reservations() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 40, alignItems: 'start' }}>
         {/* Left Column: Search & Selection */}
         <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+          {/* Room Type Preview Card */}
+          <div style={{
+            background: "var(--card)",
+            borderRadius: 24,
+            boxShadow: 'var(--shadow-lg)',
+            border: "2px solid var(--accent)",
+            overflow: 'hidden'
+          }}>
+            <div style={{
+              height: 240,
+              background: `url(${currentRoomInfo.images[0]}) center/cover no-repeat`,
+              position: 'relative'
+            }}>
+              <div style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)',
+                padding: '40px 24px 20px'
+              }}>
+                <div style={{ color: 'white' }}>
+                  <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 1, opacity: 0.9, marginBottom: 4 }}>
+                    {currentRoomInfo.category}
+                  </div>
+                  <div style={{ fontSize: 24, fontWeight: 800 }}>{currentRoomInfo.name}</div>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ padding: 24 }}>
+              <p style={{ fontSize: 14, color: 'var(--text-light)', lineHeight: 1.6, marginBottom: 20 }}>
+                {currentRoomInfo.description}
+              </p>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
+                {currentRoomInfo.amenities.slice(0, 4).map(item => (
+                  <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+                    <span style={{ color: 'var(--accent)', fontSize: 16 }}>✦</span> {item}
+                  </div>
+                ))}
+              </div>
+
+              <div style={{
+                padding: '16px 20px',
+                background: 'var(--accent-soft)',
+                borderRadius: 16,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                border: '1px solid var(--accent)'
+              }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--primary)' }}>Price per Night</span>
+                <span style={{ fontSize: 22, fontWeight: 800, color: 'var(--primary)' }}>
+                  LKR {currentRoomInfo.price.toLocaleString()}
+                </span>
+              </div>
+            </div>
+          </div>
+
           <div style={{ background: "var(--card)", padding: 32, borderRadius: 24, boxShadow: 'var(--shadow-md)', border: "1px solid var(--border)" }}>
             <h3 style={{ marginTop: 0, marginBottom: 24, fontSize: 20 }}>1. Search Availability</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -193,17 +227,17 @@ export default function Reservations() {
           </div>
 
           {selectedRoomId && (
-            <div style={{ 
-              background: "var(--card)", 
-              padding: 32, 
-              borderRadius: 24, 
-              boxShadow: 'var(--shadow-md)', 
+            <div style={{
+              background: "var(--card)",
+              padding: 32,
+              borderRadius: 24,
+              boxShadow: 'var(--shadow-md)',
               border: "1px solid var(--accent)",
               animation: 'fadeIn 0.4s ease-out'
             }}>
               <h3 style={{ marginTop: 0, marginBottom: 12, fontSize: 20 }}>Suite Details</h3>
               <p style={{ fontSize: 14, color: 'var(--text-light)', marginBottom: 20, lineHeight: 1.6 }}>{currentRoomInfo.description}</p>
-              
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
                 {currentRoomInfo.amenities.map(item => (
                   <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
@@ -211,7 +245,7 @@ export default function Reservations() {
                   </div>
                 ))}
               </div>
-              
+
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px 0', borderTop: '1px dashed var(--border)' }}>
                 <span style={{ fontSize: 14, fontWeight: 600 }}>Maximum Occupancy</span>
                 <span style={{ fontSize: 14, color: 'var(--primary)', fontWeight: 700 }}>{currentRoomInfo.capacity}</span>

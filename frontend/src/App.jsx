@@ -10,6 +10,8 @@ import ReservationList from "./pages/ReservationList";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import About from "./pages/About";
+import RoomDetails from "./pages/RoomDetails";
+import { ROOM_DATA } from "./utils/roomData";
 
 const API = "http://localhost:5000";
 
@@ -21,7 +23,10 @@ function Home() {
     async function fetchRooms() {
       try {
         const { data } = await axios.get(`${API}/api/rooms`);
-        setRooms(data.slice(0, 3)); // show first 3
+        // Show one of each type if available
+        const types = ["Single", "Double", "Family", "Suite"];
+        const filtered = types.map(t => data.find(r => r.roomType === t)).filter(r => r);
+        setRooms(filtered.length ? filtered : data.slice(0, 4));
       } catch (err) {
         console.error("Error fetching rooms:", err);
       } finally {
@@ -53,14 +58,15 @@ function Home() {
 
               <div className="field">
                 <div className="label">Preferred Suite</div>
-                <select defaultValue="Deluxe">
-                  <option value="Standard">Standard Room</option>
-                  <option value="Deluxe">Deluxe Ocean View</option>
+                <select defaultValue="Double">
+                  <option value="Single">Standard Room</option>
+                  <option value="Double">Deluxe Ocean View</option>
+                  <option value="Family">Coastal Family Haven</option>
                   <option value="Suite">Presidential Suite</option>
                 </select>
               </div>
 
-              <button className="btn-accent">Check Availability</button>
+              <Link to="/book" className="btn-accent" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Check Availability</Link>
             </div>
           </div>
         </div>
@@ -81,42 +87,41 @@ function Home() {
                 <p>Curating your experience...</p>
               </div>
             ) : rooms.length > 0 ? (
-              rooms.map((room) => (
-                <article className="room-card" key={room._id}>
-                  <div className="room-img-wrap">
-                    <img
-                      className="room-img"
-                      src={
-                        room.roomType === "Suite"
-                          ? "https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=1200&q=80"
-                          : room.roomType === "Double"
-                            ? "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80"
-                            : "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80"
-                      }
-                      alt={room.roomType}
-                      loading="lazy"
-                    />
-                  </div>
-                  <div className="room-body">
-                    <h3 className="room-name">
-                      {room.roomType} Room {room.roomNumber}
-                    </h3>
-                    <div className="room-meta">
-                      <span>• 25m²</span>
-                      <span>• Ocean View</span>
-                      <span>• Free Wi-Fi</span>
-                    </div>
-                    <div className="price-row">
-                      <div className="price">
-                        LKR {room.roomType === "Suite" ? "42,000" : "28,000"} <span>/ night</span>
+              rooms.map((room) => {
+                const info = ROOM_DATA[room.roomType] || ROOM_DATA.Double;
+                return (
+                  <article className="room-card" key={room._id}>
+                    <Link to={`/room/${room.roomType}`} style={{ textDecoration: 'none' }}>
+                      <div className="room-img-wrap">
+                        <img
+                          className="room-img"
+                          src={info.images[0]}
+                          alt={room.roomType}
+                          loading="lazy"
+                        />
                       </div>
-                      <Link to="/book" className="btn btn-primary">
-                        Reserve Now
-                      </Link>
-                    </div>
-                  </div>
-                </article>
-              ))
+                      <div className="room-body">
+                        <h3 className="room-name">
+                          {info.name}
+                        </h3>
+                        <div className="room-meta">
+                          <span>• {info.capacity}</span>
+                          <span>• Ocean View</span>
+                          <span>• {info.amenities[1]}</span>
+                        </div>
+                        <div className="price-row">
+                          <div className="price">
+                            LKR {info.price.toLocaleString()} <span>/ night</span>
+                          </div>
+                          <span className="btn btn-primary">
+                            View Details
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                  </article>
+                );
+              })
             ) : (
               <div style={{ textAlign: "center", gridColumn: "1 / -1", padding: "80px", background: '#fff', borderRadius: 24 }}>
                 <p>Welcome to Ocean View Resort. We are preparing our first rooms.</p>
@@ -204,6 +209,7 @@ export default function App() {
         <Route path="/book" element={<Reservations />} />
         <Route path="/search" element={<ReservationList />} />
         <Route path="/about" element={<About />} />
+        <Route path="/room/:type" element={<RoomDetails />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>
