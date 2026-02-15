@@ -75,19 +75,19 @@ export default function About() {
                 <div className="container">
                     <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '80px' }}>
                         <div>
-                            <div style={{ fontSize: '48px', fontWeight: '800', color: 'var(--accent)', fontFamily: 'Playfair Display, serif' }}>25+</div>
+                            <div style={{ fontSize: '48px', fontWeight: '800', color: 'var(--accent)', fontFamily: 'Inter, sans-serif' }}>25+</div>
                             <div style={{ color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '12px', marginTop: '8px' }}>Years of Excellence</div>
                         </div>
                         <div>
-                            <div style={{ fontSize: '48px', fontWeight: '800', color: 'var(--accent)', fontFamily: 'Playfair Display, serif' }}>40</div>
+                            <div style={{ fontSize: '48px', fontWeight: '800', color: 'var(--accent)', fontFamily: 'Inter, sans-serif' }}>40</div>
                             <div style={{ color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '12px', marginTop: '8px' }}>Luxury Suites</div>
                         </div>
                         <div>
-                            <div style={{ fontSize: '48px', fontWeight: '800', color: 'var(--accent)', fontFamily: 'Playfair Display, serif' }}>150+</div>
+                            <div style={{ fontSize: '48px', fontWeight: '800', color: 'var(--accent)', fontFamily: 'Inter, sans-serif' }}>150+</div>
                             <div style={{ color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '12px', marginTop: '8px' }}>Dedicated Staff</div>
                         </div>
                         <div>
-                            <div style={{ fontSize: '48px', fontWeight: '800', color: 'var(--accent)', fontFamily: 'Playfair Display, serif' }}>12k</div>
+                            <div style={{ fontSize: '48px', fontWeight: '800', color: 'var(--accent)', fontFamily: 'Inter, sans-serif' }}>12k</div>
                             <div style={{ color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '12px', marginTop: '8px' }}>Happy Guests</div>
                         </div>
                     </div>

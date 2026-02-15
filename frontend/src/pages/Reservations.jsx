@@ -4,6 +4,33 @@ import { downloadInvoice } from "../utils/invoice";
 
 const API = "http://localhost:5000";
 
+const ROOM_INFO = {
+  Single: {
+    description: "A cozy sanctuary perfect for solo travelers, featuring garden views and premium linens.",
+    amenities: ["Queen Bed", "Free WiFi", "Garden View", "Mini Bar"],
+    capacity: "1 Adult",
+    price: 28000
+  },
+  Double: {
+    description: "Elegant and spacious, ideal for couples seeking a romantic getaway with a private balcony.",
+    amenities: ["King Bed", "Ocean Glimpse", "Private Balcony", "Smart TV"],
+    capacity: "2 Participants",
+    price: 35000
+  },
+  Family: {
+    description: "The ultimate family retreat with multiple beds, a dedicated living space, and kid-friendly amenities.",
+    amenities: ["2 Queen Beds", "Living Area", "Pool Access", "2 Bathrooms"],
+    capacity: "4 Guests",
+    price: 48000
+  },
+  Suite: {
+    description: "Our most prestigious accommodation offering panoramic ocean views and exclusive butler service.",
+    amenities: ["Panoramic Ocean View", "Jacuzzi", "Butler Service", "Champagne on Arrival"],
+    capacity: "2 Guests",
+    price: 65000
+  }
+};
+
 export default function Reservations() {
   // search availability
   const [roomType, setRoomType] = useState("Double");
@@ -20,6 +47,9 @@ export default function Reservations() {
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
   const [reservationData, setReservationData] = useState(null);
+
+  const selectedRoom = availableRooms.find(r => r._id === selectedRoomId);
+  const currentRoomInfo = ROOM_INFO[roomType] || ROOM_INFO.Double;
 
   async function checkAvailability() {
     setMsg("");
@@ -96,7 +126,11 @@ export default function Reservations() {
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
               <div className="field">
                 <div className="label">Suite Category</div>
-                <select value={roomType} onChange={(e) => setRoomType(e.target.value)}>
+                <select value={roomType} onChange={(e) => {
+                  setRoomType(e.target.value);
+                  setAvailableRooms([]);
+                  setSelectedRoomId("");
+                }}>
                   <option>Single</option>
                   <option>Double</option>
                   <option>Family</option>
@@ -157,6 +191,33 @@ export default function Reservations() {
               </div>
             )}
           </div>
+
+          {selectedRoomId && (
+            <div style={{ 
+              background: "var(--card)", 
+              padding: 32, 
+              borderRadius: 24, 
+              boxShadow: 'var(--shadow-md)', 
+              border: "1px solid var(--accent)",
+              animation: 'fadeIn 0.4s ease-out'
+            }}>
+              <h3 style={{ marginTop: 0, marginBottom: 12, fontSize: 20 }}>Suite Details</h3>
+              <p style={{ fontSize: 14, color: 'var(--text-light)', marginBottom: 20, lineHeight: 1.6 }}>{currentRoomInfo.description}</p>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
+                {currentRoomInfo.amenities.map(item => (
+                  <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+                    <span style={{ color: 'var(--accent)' }}>✦</span> {item}
+                  </div>
+                ))}
+              </div>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px 0', borderTop: '1px dashed var(--border)' }}>
+                <span style={{ fontSize: 14, fontWeight: 600 }}>Maximum Occupancy</span>
+                <span style={{ fontSize: 14, color: 'var(--primary)', fontWeight: 700 }}>{currentRoomInfo.capacity}</span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right Column: Guest Details */}
@@ -194,7 +255,7 @@ export default function Reservations() {
             <div style={{ margin: '10px 0', padding: 24, background: "var(--bg)", borderRadius: 20, border: '1px solid var(--border)' }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
                 <span style={{ color: 'var(--text-light)' }}>Suite Rate / Night</span>
-                <span style={{ fontWeight: 700 }}>LKR {roomType === "Suite" ? "42,000" : "28,000"}</span>
+                <span style={{ fontWeight: 700 }}>LKR {currentRoomInfo.price.toLocaleString()}</span>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
                 <span style={{ color: 'var(--text-light)' }}>Taxes & Services</span>
@@ -203,7 +264,7 @@ export default function Reservations() {
               <div style={{ height: 1, background: 'var(--border)', margin: '16px 0' }}></div>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 18, fontWeight: 800 }}>
                 <span>Estimated Total</span>
-                <span style={{ color: 'var(--primary)' }}>LKR {roomType === "Suite" ? "42,000" : "28,000"}</span>
+                <span style={{ color: 'var(--primary)' }}>LKR {currentRoomInfo.price.toLocaleString()}</span>
               </div>
             </div>
 
