@@ -31,13 +31,13 @@ router.get("/available", async (req, res) => {
 /* 2️⃣ CREATE RESERVATION */
 router.post("/", async (req, res) => {
   try {
-    const { fullName, address, contactNumber, roomId, checkIn, checkOut } = req.body;
+    const { fullName, address, contactNumber, idNumber, roomId, checkIn, checkOut } = req.body;
 
     if (new Date(checkOut) <= new Date(checkIn))
       return res.status(400).json({ message: "Invalid date range" });
 
     // create guest
-    const guest = await Guest.create({ fullName, address, contactNumber });
+    const guest = await Guest.create({ fullName, address, contactNumber, idNumber });
 
     // conflict check
     const conflict = await Reservation.findOne({

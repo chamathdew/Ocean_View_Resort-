@@ -23,10 +23,8 @@ function Home() {
     async function fetchRooms() {
       try {
         const { data } = await axios.get(`${API}/api/rooms`);
-        // Show one of each type if available
-        const types = ["Single", "Double", "Family", "Suite"];
-        const filtered = types.map(t => data.find(r => r.roomType === t)).filter(r => r);
-        setRooms(filtered.length ? filtered : data.slice(0, 4));
+        // Show all rooms from database
+        setRooms(data);
       } catch (err) {
         console.error("Error fetching rooms:", err);
       } finally {

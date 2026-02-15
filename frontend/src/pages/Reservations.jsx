@@ -17,6 +17,9 @@ export default function Reservations() {
   const [fullName, setFullName] = useState("");
   const [address, setAddress] = useState("");
   const [contactNumber, setContactNumber] = useState("");
+  const [idNumber, setIdNumber] = useState("");
+  const [idImage, setIdImage] = useState(null);
+  const [scanningId, setScanningId] = useState(false);
 
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
@@ -24,6 +27,65 @@ export default function Reservations() {
 
   const selectedRoom = availableRooms.find(r => r._id === selectedRoomId);
   const currentRoomInfo = ROOM_DATA[roomType] || ROOM_DATA.Double;
+
+  // Handle ID/Passport image upload and processing
+  async function handleIdUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    setIdImage(file);
+    setScanningId(true);
+    setMsg("");
+
+    try {
+      // Create form data for image upload
+      const formData = new FormData();
+      formData.append('idImage', file);
+
+      console.log('Uploading ID image...');
+
+      // Send to backend for OCR processing
+      const response = await axios.post(`${API}/api/scan-id`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      console.log('Backend response:', response.data);
+
+      // Auto-fill form fields with extracted data
+      const data = response.data;
+
+      // Fill name if detected
+      if (data.fullName) {
+        setFullName(data.fullName);
+        console.log('Name filled:', data.fullName);
+      }
+
+      // Fill address if detected
+      if (data.address) {
+        setAddress(data.address);
+        console.log('Address filled:', data.address);
+      }
+
+      // Fill contact number if detected
+      if (data.contactNumber) {
+        setContactNumber(data.contactNumber);
+        console.log('Contact filled:', data.contactNumber);
+      }
+
+      // Fill ID number if detected
+      if (data.idNumber) {
+        setIdNumber(data.idNumber);
+        console.log('ID Number filled:', data.idNumber);
+      }
+
+      setMsg("✅ ID scanned successfully! Please verify and complete the details.");
+    } catch (err) {
+      setMsg("❌ Failed to scan ID. Please enter details manually.");
+      console.error("ID scan error:", err);
+    } finally {
+      setScanningId(false);
+    }
+  }
 
   async function checkAvailability() {
     setMsg("");
@@ -52,8 +114,8 @@ export default function Reservations() {
       setMsg("Selection Required: Please choose a suite from the available options.");
       return;
     }
-    if (!fullName || !contactNumber) {
-      setMsg("Information Required: Please provide your full name and contact details.");
+    if (!fullName || !contactNumber || !idNumber) {
+      setMsg("Information Required: Please provide your full name, ID number, and contact details.");
       return;
     }
 
@@ -63,6 +125,7 @@ export default function Reservations() {
         fullName,
         address,
         contactNumber,
+        idNumber,
         roomId: selectedRoomId,
         checkIn,
         checkOut,
@@ -77,6 +140,7 @@ export default function Reservations() {
       setFullName("");
       setAddress("");
       setContactNumber("");
+      setIdNumber("");
     } catch (err) {
       setMsg(err?.response?.data?.message || "Error creating reservation");
     } finally {
@@ -259,12 +323,63 @@ export default function Reservations() {
           <h3 style={{ marginTop: 0, marginBottom: 32, fontSize: 20 }}>3. Provide Guest Details</h3>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            {/* ID/Passport Scanner */}
+            <div style={{
+              padding: 24,
+              background: 'var(--bg)',
+              borderRadius: 20,
+              border: '2px dashed var(--border)',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: 32, marginBottom: 12 }}>📄</div>
+              <h4 style={{ margin: '0 0 8px 0', fontSize: 16 }}>Quick Fill with ID/Passport</h4>
+              <p style={{ margin: '0 0 16px 0', fontSize: 13, color: 'var(--text-light)' }}>
+                Upload your ID or Passport to auto-fill details
+              </p>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleIdUpload}
+                style={{ display: 'none' }}
+                id="id-upload"
+                disabled={scanningId}
+              />
+              <label
+                htmlFor="id-upload"
+                className="btn btn-primary"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  cursor: scanningId ? 'not-allowed' : 'pointer',
+                  opacity: scanningId ? 0.6 : 1
+                }}
+              >
+                {scanningId ? '🔄 Scanning...' : '📸 Upload ID/Passport'}
+              </label>
+              {idImage && !scanningId && (
+                <div style={{ marginTop: 12, fontSize: 12, color: 'var(--accent)', fontWeight: 600 }}>
+                  ✓ {idImage.name}
+                </div>
+              )}
+            </div>
+
             <div className="field">
               <div className="label">Full Name</div>
               <input
                 placeholder="As per Passport / ID"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
+              />
+            </div>
+
+            <div className="field">
+              <div className="label">ID / Passport Number</div>
+              <input
+                placeholder="NIC or Passport Number"
+                value={idNumber}
+                onChange={(e) => setIdNumber(e.target.value)}
               />
             </div>
 
