@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { downloadInvoice } from "../utils/invoice";
 import { ROOM_DATA } from "../utils/roomData";
 
-const API = "http://localhost:5000";
+const API = `http://${window.location.hostname}:5000`;
 
 export default function Reservations() {
-  // search availability
+  // --- STATE ---
   const [roomType, setRoomType] = useState("Double");
   const [checkIn, setCheckIn] = useState("2026-03-01");
   const [checkOut, setCheckOut] = useState("2026-03-05");
@@ -15,430 +15,305 @@ export default function Reservations() {
 
   // guest form
   const [fullName, setFullName] = useState("");
-  const [address, setAddress] = useState("");
   const [contactNumber, setContactNumber] = useState("");
   const [idNumber, setIdNumber] = useState("");
-  const [idImage, setIdImage] = useState(null);
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [gender, setGender] = useState("");
   const [scanningId, setScanningId] = useState(false);
 
+  // system
+  const [errors, setErrors] = useState({});
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
   const [reservationData, setReservationData] = useState(null);
 
-  const selectedRoom = availableRooms.find(r => r._id === selectedRoomId);
   const currentRoomInfo = ROOM_DATA[roomType] || ROOM_DATA.Double;
 
-  // Handle ID/Passport image upload and processing
+  // --- ACTIONS ---
+  async function checkAvailability() {
+    setLoading(true);
+    setReservationData(null);
+    try {
+      // Small delay for UI smoothness
+      await new Promise(r => setTimeout(r, 300));
+      const { data } = await axios.get(`${API}/api/reservations/available`, {
+        params: { roomType, checkIn, checkOut },
+      });
+      setAvailableRooms(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Handle Search Click
+  const handleSearch = () => {
+    checkAvailability();
+  };
+
   async function handleIdUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
-
-    setIdImage(file);
     setScanningId(true);
     setMsg("");
-
     try {
-      // Create form data for image upload
       const formData = new FormData();
       formData.append('idImage', file);
-
-      console.log('Uploading ID image...');
-
-      // Send to backend for OCR processing
-      const response = await axios.post(`${API}/api/scan-id`, formData, {
+      const { data } = await axios.post(`${API}/api/scan-id`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-
-      console.log('Backend response:', response.data);
-
-      // Auto-fill form fields with extracted data
-      const data = response.data;
-
-      // Fill name if detected
-      if (data.fullName) {
-        setFullName(data.fullName);
-        console.log('Name filled:', data.fullName);
-      }
-
-      // Fill address if detected
-      if (data.address) {
-        setAddress(data.address);
-        console.log('Address filled:', data.address);
-      }
-
-      // Fill contact number if detected
-      if (data.contactNumber) {
-        setContactNumber(data.contactNumber);
-        console.log('Contact filled:', data.contactNumber);
-      }
-
-      // Fill ID number if detected
-      if (data.idNumber) {
-        setIdNumber(data.idNumber);
-        console.log('ID Number filled:', data.idNumber);
-      }
-
-      setMsg("✅ ID scanned successfully! Please verify and complete the details.");
+      if (data.fullName) setFullName(data.fullName);
+      if (data.contactNumber) setContactNumber(data.contactNumber);
+      if (data.idNumber) setIdNumber(data.idNumber);
+      if (data.dateOfBirth) setDateOfBirth(data.dateOfBirth);
+      if (data.gender) setGender(data.gender);
+      setMsg("✅ ID Scanned Successfully");
     } catch (err) {
-      setMsg("❌ Failed to scan ID. Please enter details manually.");
-      console.error("ID scan error:", err);
+      setMsg("❌ Scan failed. Please enter details.");
     } finally {
       setScanningId(false);
     }
   }
 
-  async function checkAvailability() {
-    setMsg("");
-    setReservationData(null);
-    setSelectedRoomId("");
-    setLoading(true);
-
-    try {
-      const { data } = await axios.get(`${API}/api/reservations/available`, {
-        params: { roomType, checkIn, checkOut },
-      });
-      setAvailableRooms(data);
-      if (!data.length) setMsg("We're sorry, no suites of this type are available for the selected dates.");
-    } catch (err) {
-      setMsg(err?.response?.data?.message || "Error checking availability");
-    } finally {
-      setLoading(false);
-    }
-  }
-
   async function bookNow() {
     setMsg("");
-    setReservationData(null);
-
-    if (!selectedRoomId) {
-      setMsg("Selection Required: Please choose a suite from the available options.");
-      return;
-    }
-    if (!fullName || !contactNumber || !idNumber) {
-      setMsg("Information Required: Please provide your full name, ID number, and contact details.");
-      return;
-    }
+    if (!selectedRoomId) return setMsg("⚠️ Please select a suite first.");
+    if (!fullName || !idNumber || !contactNumber) return setMsg("⚠️ Please fill in all required guest details.");
 
     setLoading(true);
     try {
       const payload = {
-        fullName,
-        address,
-        contactNumber,
-        idNumber,
-        roomId: selectedRoomId,
-        checkIn,
-        checkOut,
+        fullName, contactNumber, idNumber, dateOfBirth, gender,
+        roomId: selectedRoomId, checkIn, checkOut
       };
 
+      if (!localStorage.getItem("user")) {
+        setMsg("⚠️ Please sign in to complete booking.");
+        setTimeout(() => window.location.href = "/login", 1500);
+        return;
+      }
+
       const { data } = await axios.post(`${API}/api/reservations`, payload);
-
       setReservationData(data);
-      setMsg("✅ Your sanctuary awaits! Booking confirmed.");
-
-      // reset guest fields
-      setFullName("");
-      setAddress("");
-      setContactNumber("");
-      setIdNumber("");
+      setMsg("✅ Booking Success!");
+      setFullName(""); setIdNumber(""); setContactNumber("");
     } catch (err) {
-      setMsg(err?.response?.data?.message || "Error creating reservation");
+      setMsg(err?.response?.data?.message || "Booking Failed");
     } finally {
       setLoading(false);
     }
   }
 
+  // --- RENDER SUCCESS ---
+  if (reservationData) {
+    return (
+      <div className="container" style={{ paddingTop: 80, paddingBottom: 100, maxWidth: 600 }}>
+        <div className="glass-panel" style={{ padding: 40, textAlign: "center" }}>
+          <div style={{ fontSize: 60, marginBottom: 24 }}>🎉</div>
+          <h2 style={{ fontSize: 32, marginBottom: 12 }}>Booking Confirmed!</h2>
+          <p style={{ color: "var(--text-light)", marginBottom: 32 }}>
+            Ref: <span style={{ fontWeight: 700, color: 'var(--primary)' }}>{reservationData.reservationNo}</span>
+          </p>
+          <button onClick={() => downloadInvoice(reservationData)} className="btn btn-primary" style={{ width: "100%", marginBottom: 16 }}>
+            Download Invoice 📄
+          </button>
+          <button onClick={() => { setReservationData(null); setSelectedRoomId(""); }} className="ghost">
+            Book Another
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="container" style={{ paddingTop: 60, paddingBottom: 100 }}>
-      <div className="section-title">
-        <span className="badge">Booking Portal</span>
-        <h2>Reserve Your Experience</h2>
-        <p style={{ color: 'var(--text-light)' }}>Secure your stay at Ocean View Resort in just a few steps.</p>
+    <div className="container" style={{ maxWidth: 1400, padding: 0 }}>
+
+      {/* HERO HEADER */}
+      <div style={{
+        background: 'linear-gradient(135deg, var(--primary) 0%, var(--accent) 150%)',
+        borderRadius: '0 0 40px 40px',
+        padding: '60px 20px 100px',
+        textAlign: 'center',
+        color: 'white',
+        marginBottom: -50,
+        position: 'relative'
+      }}>
+        <h1 style={{ fontSize: 42, margin: '0 0 16px', textShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>Book Your Paradise</h1>
+        <p style={{ fontSize: 18, opacity: 0.9, maxWidth: 600, margin: '0 auto' }}>Select your dates and suite to instantly view availability.</p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 40, alignItems: 'start' }}>
-        {/* Left Column: Search & Selection */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
-          {/* Room Type Preview Card */}
-          <div style={{
-            background: "var(--card)",
-            borderRadius: 24,
-            boxShadow: 'var(--shadow-lg)',
-            border: "2px solid var(--accent)",
-            overflow: 'hidden'
-          }}>
-            <div style={{
-              height: 240,
-              background: `url(${currentRoomInfo.images[0]}) center/cover no-repeat`,
-              position: 'relative'
-            }}>
-              <div style={{
-                position: 'absolute',
-                bottom: 0,
-                left: 0,
-                right: 0,
-                background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)',
-                padding: '40px 24px 20px'
-              }}>
-                <div style={{ color: 'white' }}>
-                  <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 1, opacity: 0.9, marginBottom: 4 }}>
-                    {currentRoomInfo.category}
-                  </div>
-                  <div style={{ fontSize: 24, fontWeight: 800 }}>{currentRoomInfo.name}</div>
-                </div>
+      {/* FLOATING SEARCH BAR */}
+      <div className="container" style={{ position: 'relative', zIndex: 10, padding: '0 40px', marginBottom: 80, marginTop: -40 }}>
+        <div className="glass-panel" style={{
+          padding: '30px 40px',
+          borderRadius: 100,
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 48,
+          alignItems: 'center',
+          boxShadow: '0 25px 50px -12px rgba(0,0,0,0.15)',
+          background: 'var(--card-bg)',
+          maxWidth: 1100,
+          margin: '0 auto',
+          minHeight: 100
+        }}>
+
+          {/* Date Inputs */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, flex: 2, paddingLeft: 10, borderRight: '1px solid var(--border)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <span style={{ fontSize: 24 }}>📅</span>
+              <div>
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)' }}>Check-in</label>
+                <input type="date" value={checkIn} onChange={e => setCheckIn(e.target.value)}
+                  style={{ border: 'none', background: 'transparent', fontWeight: 600, fontSize: 15, color: 'var(--text)', fontFamily: 'inherit' }} />
               </div>
             </div>
-
-            <div style={{ padding: 24 }}>
-              <p style={{ fontSize: 14, color: 'var(--text-light)', lineHeight: 1.6, marginBottom: 20 }}>
-                {currentRoomInfo.description}
-              </p>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
-                {currentRoomInfo.amenities.slice(0, 4).map(item => (
-                  <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
-                    <span style={{ color: 'var(--accent)', fontSize: 16 }}>✦</span> {item}
-                  </div>
-                ))}
-              </div>
-
-              <div style={{
-                padding: '16px 20px',
-                background: 'var(--accent-soft)',
-                borderRadius: 16,
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                border: '1px solid var(--accent)'
-              }}>
-                <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--primary)' }}>Price per Night</span>
-                <span style={{ fontSize: 22, fontWeight: 800, color: 'var(--primary)' }}>
-                  LKR {currentRoomInfo.price.toLocaleString()}
-                </span>
+            <span style={{ color: 'var(--border)' }}>|</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div>
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)' }}>Check-out</label>
+                <input type="date" value={checkOut} onChange={e => setCheckOut(e.target.value)}
+                  style={{ border: 'none', background: 'transparent', fontWeight: 600, fontSize: 15, color: 'var(--text)', fontFamily: 'inherit' }} />
               </div>
             </div>
           </div>
 
-          <div style={{ background: "var(--card)", padding: 32, borderRadius: 24, boxShadow: 'var(--shadow-md)', border: "1px solid var(--border)" }}>
-            <h3 style={{ marginTop: 0, marginBottom: 24, fontSize: 20 }}>1. Search Availability</h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-              <div className="field">
-                <div className="label">Suite Category</div>
-                <select value={roomType} onChange={(e) => {
-                  setRoomType(e.target.value);
-                  setAvailableRooms([]);
-                  setSelectedRoomId("");
-                }}>
+          {/* Room Select */}
+          <div style={{ flex: 1, paddingRight: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <span style={{ fontSize: 24 }}>🛏️</span>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)' }}>Experience</label>
+                <select value={roomType} onChange={e => { setRoomType(e.target.value); setSelectedRoomId(""); }}
+                  style={{ width: '100%', border: 'none', background: 'transparent', fontWeight: 600, fontSize: 15, color: 'var(--text)', padding: 0, cursor: 'pointer' }}>
                   <option>Single</option>
                   <option>Double</option>
                   <option>Family</option>
                   <option>Suite</option>
                 </select>
               </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 15 }}>
-                <div className="field">
-                  <div className="label">Check-in</div>
-                  <input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} />
-                </div>
-                <div className="field">
-                  <div className="label">Check-out</div>
-                  <input type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} />
-                </div>
-              </div>
-
-              <button className="btn btn-primary" onClick={checkAvailability} disabled={loading} style={{ width: '100%', marginTop: 10 }}>
-                {loading ? "Searching..." : "Find Available Suites"}
-              </button>
             </div>
           </div>
 
-          <div style={{ background: "var(--card)", padding: 32, borderRadius: 24, boxShadow: 'var(--shadow-md)', border: "1px solid var(--border)" }}>
-            <h3 style={{ marginTop: 0, marginBottom: 24, fontSize: 20 }}>2. Select Your Suite</h3>
-            {availableRooms.length > 0 ? (
-              <div style={{ display: "grid", gap: 12 }}>
-                {availableRooms.map((room) => (
-                  <div
-                    key={room._id}
-                    onClick={() => setSelectedRoomId(room._id)}
-                    style={{
-                      padding: "20px",
-                      borderRadius: 16,
-                      border: selectedRoomId === room._id ? "2px solid var(--accent)" : "1px solid var(--border)",
-                      background: selectedRoomId === room._id ? "var(--accent-soft)" : "var(--bg)",
-                      cursor: "pointer",
-                      transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center'
-                    }}
-                  >
-                    <div>
-                      <div style={{ fontWeight: 800, color: 'var(--primary)', fontSize: 16 }}>Suite {room.roomNumber}</div>
-                      <div style={{ fontSize: 13, color: "var(--text-light)", marginTop: 4 }}>{room.roomType} Category • Pool Side</div>
-                    </div>
-                    {selectedRoomId === room._id && (
-                      <div style={{ background: 'var(--accent)', color: 'var(--primary)', padding: '4px 12px', borderRadius: 100, fontSize: 11, fontWeight: 700 }}>SELECTED</div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div style={{ textAlign: 'center', padding: '20px 0', color: "var(--text-light)", fontSize: 14 }}>
-                <p>Enter your travel dates above to see available suites.</p>
-              </div>
-            )}
-          </div>
-
-          {selectedRoomId && (
-            <div style={{
-              background: "var(--card)",
-              padding: 32,
-              borderRadius: 24,
-              boxShadow: 'var(--shadow-md)',
-              border: "1px solid var(--accent)",
-              animation: 'fadeIn 0.4s ease-out'
-            }}>
-              <h3 style={{ marginTop: 0, marginBottom: 12, fontSize: 20 }}>Suite Details</h3>
-              <p style={{ fontSize: 14, color: 'var(--text-light)', marginBottom: 20, lineHeight: 1.6 }}>{currentRoomInfo.description}</p>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
-                {currentRoomInfo.amenities.map(item => (
-                  <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
-                    <span style={{ color: 'var(--accent)' }}>✦</span> {item}
-                  </div>
-                ))}
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px 0', borderTop: '1px dashed var(--border)' }}>
-                <span style={{ fontSize: 14, fontWeight: 600 }}>Maximum Occupancy</span>
-                <span style={{ fontSize: 14, color: 'var(--primary)', fontWeight: 700 }}>{currentRoomInfo.capacity}</span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Right Column: Guest Details */}
-        <div style={{ background: "var(--card)", padding: 40, borderRadius: 24, boxShadow: 'var(--shadow-lg)', border: "1px solid var(--border)", position: 'sticky', top: 120 }}>
-          <h3 style={{ marginTop: 0, marginBottom: 32, fontSize: 20 }}>3. Provide Guest Details</h3>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            {/* ID/Passport Scanner */}
-            <div style={{
-              padding: 24,
-              background: 'var(--bg)',
-              borderRadius: 20,
-              border: '2px dashed var(--border)',
-              textAlign: 'center'
-            }}>
-              <div style={{ fontSize: 32, marginBottom: 12 }}>📄</div>
-              <h4 style={{ margin: '0 0 8px 0', fontSize: 16 }}>Quick Fill with ID/Passport</h4>
-              <p style={{ margin: '0 0 16px 0', fontSize: 13, color: 'var(--text-light)' }}>
-                Upload your ID or Passport to auto-fill details
-              </p>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleIdUpload}
-                style={{ display: 'none' }}
-                id="id-upload"
-                disabled={scanningId}
-              />
-              <label
-                htmlFor="id-upload"
-                className="btn btn-primary"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8,
-                  cursor: scanningId ? 'not-allowed' : 'pointer',
-                  opacity: scanningId ? 0.6 : 1
-                }}
-              >
-                {scanningId ? '🔄 Scanning...' : '📸 Upload ID/Passport'}
-              </label>
-              {idImage && !scanningId && (
-                <div style={{ marginTop: 12, fontSize: 12, color: 'var(--accent)', fontWeight: 600 }}>
-                  ✓ {idImage.name}
-                </div>
-              )}
-            </div>
-
-            <div className="field">
-              <div className="label">Full Name</div>
-              <input
-                placeholder="As per Passport / ID"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-              />
-            </div>
-
-            <div className="field">
-              <div className="label">ID / Passport Number</div>
-              <input
-                placeholder="NIC or Passport Number"
-                value={idNumber}
-                onChange={(e) => setIdNumber(e.target.value)}
-              />
-            </div>
-
-            <div className="field">
-              <div className="label">Contact Number</div>
-              <input
-                placeholder="+94 7X XXX XXXX"
-                value={contactNumber}
-                onChange={(e) => setContactNumber(e.target.value)}
-              />
-            </div>
-
-            <div className="field">
-              <div className="label">Special Requests (Optional)</div>
-              <input
-                placeholder="Dietary needs, airport pick-up, etc."
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-              />
-            </div>
-
-            <div style={{ margin: '10px 0', padding: 24, background: "var(--bg)", borderRadius: 20, border: '1px solid var(--border)' }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
-                <span style={{ color: 'var(--text-light)' }}>Suite Rate / Night</span>
-                <span style={{ fontWeight: 700 }}>LKR {currentRoomInfo.price.toLocaleString()}</span>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
-                <span style={{ color: 'var(--text-light)' }}>Taxes & Services</span>
-                <span style={{ color: 'var(--accent)', fontWeight: 600 }}>Included</span>
-              </div>
-              <div style={{ height: 1, background: 'var(--border)', margin: '16px 0' }}></div>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 18, fontWeight: 800 }}>
-                <span>Estimated Total</span>
-                <span style={{ color: 'var(--primary)' }}>LKR {currentRoomInfo.price.toLocaleString()}</span>
-              </div>
-            </div>
-
-            <button className="btn btn-accent" onClick={bookNow} disabled={loading || !selectedRoomId} style={{ height: 56, fontSize: 16, width: '100%' }}>
-              {loading ? "Confirming..." : "Finalize Booking"}
+          {/* Search Button */}
+          <div>
+            <button onClick={handleSearch} className="btn btn-primary" style={{ borderRadius: 50, padding: '12px 32px', height: 50 }}>
+              {loading ? "Searching..." : "Check Availability"}
             </button>
+          </div>
+        </div>
+      </div>
 
-            {reservationData && (
-              <div style={{ background: "var(--accent-soft)", padding: 24, borderRadius: 20, border: "1px solid var(--accent)", textAlign: "center", animation: 'fadeIn 0.5s ease-out' }}>
-                <div style={{ fontSize: 13, color: "var(--accent)", fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}>Booking Confirmed</div>
-                <div style={{ fontSize: 24, fontWeight: 800, color: "var(--primary)", margin: '8px 0' }}>{reservationData.reservationNo}</div>
-                <button
-                  onClick={() => downloadInvoice(reservationData)}
-                  className="btn btn-primary"
-                  style={{ width: '100%', marginTop: 15, fontSize: 14 }}
-                >
-                  Download PDF Invoice
-                </button>
-                <div style={{ fontSize: 12, color: "var(--text-light)", marginTop: 10 }}>Please present this code at check-in.</div>
+      <div style={{ padding: '0 40px', display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 60, alignItems: 'start', maxWidth: 1400, margin: '0 auto' }}>
+
+        {/* LEFT COLUMN: ROOMS */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 style={{ margin: 0, fontSize: 18 }}>
+              {availableRooms.length > 0 ? `Available Suites (${availableRooms.length})` : "Start Your Search"}
+            </h3>
+            {loading && <span style={{ fontSize: 12, color: 'var(--primary)' }}>Refreshing...</span>}
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            {!loading && availableRooms.length === 0 && (
+              <div style={{ padding: 60, textAlign: 'center', color: 'var(--text-muted)', background: 'var(--card)', borderRadius: 24, padding: 40, border: '1px dashed var(--border)' }}>
+                <div style={{ fontSize: 40, marginBottom: 16 }}>🗓️</div>
+                <p>Select your dates and experience above, then click <b>Check Availability</b> to find your room.</p>
               </div>
             )}
 
-            {msg && <p style={{ textAlign: "center", color: msg.includes("✅") ? "var(--accent)" : "#991b1b", fontSize: 14, fontWeight: 500, margin: 0 }}>{msg}</p>}
+            {availableRooms.map(room => (
+              <div key={room._id} onClick={() => setSelectedRoomId(room._id)}
+                className="glass-panel"
+                style={{
+                  padding: 24,
+                  display: 'flex',
+                  gap: 20,
+                  cursor: 'pointer',
+                  border: selectedRoomId === room._id ? '2px solid var(--accent)' : '1px solid var(--border)',
+                  transform: selectedRoomId === room._id ? 'scale(1.02)' : 'none',
+                  transition: 'all 0.3s ease'
+                }}>
+                <img src={currentRoomInfo.images[0]} style={{ width: 120, height: 100, borderRadius: 16, objectFit: 'cover' }} alt="" />
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <h4 style={{ margin: 0, fontSize: 18 }}>Suite {room.roomNumber}</h4>
+                    {selectedRoomId === room._id && <span style={{ color: 'var(--accent)', fontWeight: 700 }}>SELECTED</span>}
+                  </div>
+                  <p style={{ margin: '4px 0 12px', fontSize: 14, color: 'var(--text-muted)' }}>Ocean Facing • 2nd Floor • King Bed</p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--primary)' }}>
+                      LKR {currentRoomInfo.price.toLocaleString()}
+                    </span>
+                    <span style={{ fontSize: 12, opacity: 0.6 }}>/ night</span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
+
+        {/* RIGHT COLUMN: CHECKOUT */}
+        <div className="glass-panel" style={{ padding: 32, position: 'sticky', top: 100 }}>
+          <h3 style={{ marginTop: 0, marginBottom: 24, fontSize: 20 }}>Guest Details</h3>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {/* Scanner */}
+            <div style={{ background: 'rgba(var(--primary-rgb), 0.05)', borderRadius: 16, padding: 12 }}>
+              <input type="file" id="idscan" style={{ display: 'none' }} accept="image/*" onChange={handleIdUpload} disabled={scanningId} />
+              <label htmlFor="idscan" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--primary)' }}>
+                {scanningId ? "Scanning..." : "📸 Scan ID to Auto-fill"}
+              </label>
+            </div>
+
+            <div className="field">
+              <label className="label">Full Name</label>
+              <input value={fullName} onChange={e => setFullName(e.target.value)} style={{ padding: 12 }} placeholder="Your Name" />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div className="field">
+                <label className="label">ID/Passport</label>
+                <input value={idNumber} onChange={e => setIdNumber(e.target.value)} style={{ padding: 12 }} />
+              </div>
+              <div className="field">
+                <label className="label">Contact</label>
+                <input value={contactNumber} onChange={e => setContactNumber(e.target.value)} style={{ padding: 12 }} />
+              </div>
+            </div>
+
+            <div style={{ height: 1, background: 'var(--border)', margin: '16px 0' }}></div>
+
+            {/* Price Calculation */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, marginBottom: 8 }}>
+              <span style={{ color: 'var(--text-muted)' }}>Price per Night</span>
+              <span>LKR {currentRoomInfo.price.toLocaleString()}</span>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, marginBottom: 8 }}>
+              <span style={{ color: 'var(--text-muted)' }}>Duration</span>
+              <span>{Math.max(1, Math.ceil((new Date(checkOut) - new Date(checkIn)) / (86400000)))} Nights</span>
+            </div>
+
+            <div style={{ width: '100%', borderTop: '1px dashed var(--border)', margin: '8px 0' }}></div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 20, fontWeight: 800, marginTop: 8 }}>
+              <span>Total Due</span>
+              <span style={{ color: 'var(--primary)' }}>
+                LKR {(currentRoomInfo.price * Math.max(1, Math.ceil((new Date(checkOut) - new Date(checkIn)) / (86400000)))).toLocaleString()}
+              </span>
+            </div>
+
+            {msg && <div style={{ background: msg.includes('✅') ? 'rgba(0,255,0,0.1)' : 'rgba(255,0,0,0.1)', padding: 10, borderRadius: 8, fontSize: 13, textAlign: 'center', color: msg.includes('✅') ? 'green' : 'red' }}>{msg}</div>}
+
+            <button onClick={bookNow} disabled={loading} className="btn btn-accent" style={{ width: '100%', marginTop: 10, height: 50 }}>
+              {loading ? "Processing..." : selectedRoomId ? "Confirm Booking" : "Select a Room First"}
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
   );

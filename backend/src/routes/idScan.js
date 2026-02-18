@@ -67,7 +67,8 @@ async function extractIdData(imageBuffer) {
                 idNumber = line.match(nicPattern)[0];
             }
 
-            // Look for phone number
+            // Look for phone number - DISABLED per user request (Manual Entry)
+            /* 
             if (phonePattern.test(line) && !contactNumber) {
                 const match = line.match(phonePattern);
                 if (match) {
@@ -80,6 +81,7 @@ async function extractIdData(imageBuffer) {
                     }
                 }
             }
+            */
 
             // Look for name
             if (!fullName) {

@@ -11,9 +11,10 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import About from "./pages/About";
 import RoomDetails from "./pages/RoomDetails";
+import AdminDashboard from "./pages/AdminDashboard";
 import { ROOM_DATA } from "./utils/roomData";
 
-const API = "http://localhost:5000";
+const API = `http://${window.location.hostname}:5000`;
 
 function Home() {
   const [rooms, setRooms] = useState([]);
@@ -43,7 +44,7 @@ function Home() {
           <p>Indulge in an unforgettable escape at Ocean View Resort, where world-class comfort meets the tranquil beauty of the coast.</p>
 
           <div className="search-wrap">
-            <div className="search-card glass">
+            <div className="search-card">
               <div className="field">
                 <div className="label">Check-in Date</div>
                 <input type="date" />
@@ -64,7 +65,7 @@ function Home() {
                 </select>
               </div>
 
-              <Link to="/book" className="btn-accent" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Check Availability</Link>
+              <Link to="/book" className="btn btn-accent" style={{ textDecoration: 'none', justifyContent: 'center' }}>Check Availability</Link>
             </div>
           </div>
         </div>
@@ -85,43 +86,45 @@ function Home() {
                 <p>Curating your experience...</p>
               </div>
             ) : rooms.length > 0 ? (
-              rooms.map((room) => {
-                const info = ROOM_DATA[room.roomType] || ROOM_DATA.Double;
-                return (
-                  <article className="room-card" key={room._id}>
-                    <Link to={`/room/${room.roomType}`} style={{ textDecoration: 'none' }}>
-                      <div className="room-img-wrap">
-                        <img
-                          className="room-img"
-                          src={info.images[0]}
-                          alt={room.roomType}
-                          loading="lazy"
-                        />
-                      </div>
-                      <div className="room-body">
-                        <h3 className="room-name">
-                          {info.name}
-                        </h3>
-                        <div className="room-meta">
-                          <span>• {info.capacity}</span>
-                          <span>• Ocean View</span>
-                          <span>• {info.amenities[1]}</span>
+              rooms
+                .filter((room, index, self) => index === self.findIndex((r) => r.roomType === room.roomType))
+                .map((room) => {
+                  const info = ROOM_DATA[room.roomType] || ROOM_DATA.Double;
+                  return (
+                    <article className="room-card" key={room._id}>
+                      <Link to={`/room/${room.roomType}`} style={{ textDecoration: 'none' }}>
+                        <div className="room-img-wrap">
+                          <img
+                            className="room-img"
+                            src={info.images[0]}
+                            alt={room.roomType}
+                            loading="lazy"
+                          />
                         </div>
-                        <div className="price-row">
-                          <div className="price">
-                            LKR {info.price.toLocaleString()} <span>/ night</span>
+                        <div className="room-body">
+                          <h3 className="room-name">
+                            {info.name}
+                          </h3>
+                          <div className="room-meta">
+                            <span>• {info.capacity}</span>
+                            <span>• Ocean View</span>
+                            <span>• {info.amenities[1]}</span>
                           </div>
-                          <span className="btn btn-primary">
-                            View Details
-                          </span>
+                          <div className="price-row">
+                            <div className="price">
+                              LKR {info.price.toLocaleString()} <span>/ night</span>
+                            </div>
+                            <span className="btn btn-primary btn-sm">
+                              View Details
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    </Link>
-                  </article>
-                );
-              })
+                      </Link>
+                    </article>
+                  );
+                })
             ) : (
-              <div style={{ textAlign: "center", gridColumn: "1 / -1", padding: "80px", background: '#fff', borderRadius: 24 }}>
+              <div className="glass-panel" style={{ textAlign: "center", gridColumn: "1 / -1", padding: "80px", color: 'var(--text-muted)' }}>
                 <p>Welcome to Ocean View Resort. We are preparing our first rooms.</p>
                 <Link to="/rooms" className="btn btn-primary" style={{ display: "inline-block", marginTop: "20px" }}>
                   Manage Inventory
@@ -138,6 +141,7 @@ function Home() {
 export default function App() {
   const [user, setUser] = useState(null);
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -172,32 +176,41 @@ export default function App() {
             Ocean View Resort
           </Link>
 
-          <nav className="header-nav">
-            {isAdmin && <Link to="/rooms" className="nav-link">Inventory</Link>}
-            <Link to="/about" className="nav-link">About Us</Link>
-            <Link to="/book" className="nav-link">Book Room</Link>
-            <Link to="/search" className="nav-link">My Booking</Link>
-          </nav>
+          <button
+            className="mobile-menu-toggle"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle Menu"
+            style={{ display: 'none', background: 'none', border: 'none', fontSize: 24, cursor: 'pointer', color: 'var(--primary)' }}
+          >
+            ☰
+          </button>
 
-          <div className="header-actions">
-            <button onClick={toggleTheme} className="ghost" style={{ padding: '8px 12px', marginRight: 15, fontSize: 18 }}>
-              {theme === 'light' ? '🌙' : '☀️'}
-            </button>
-            {user ? (
-              <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--primary)' }}>{user.name}</div>
-                  <div style={{ fontSize: 11, textTransform: 'uppercase', color: 'var(--accent)' }}>{user.role} Member</div>
+          <nav className={`header-nav ${mobileMenuOpen ? 'open' : ''}`}>
+            {isAdmin && <Link to="/admin" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>}
+            {isAdmin && <Link to="/rooms" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Inventory</Link>}
+            <Link to="/about" className="nav-link" onClick={() => setMobileMenuOpen(false)}>About Us</Link>
+            {!isAdmin && <Link to="/book" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Book Room</Link>}
+            <Link to="/search" className="nav-link" onClick={() => setMobileMenuOpen(false)}>My Booking</Link>
+            <div className="header-actions">
+              <button onClick={toggleTheme} className="ghost" style={{ padding: '8px 12px', marginRight: 15, fontSize: 18 }}>
+                {theme === 'light' ? '🌙' : '☀️'}
+              </button>
+              {user ? (
+                <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--primary)' }}>{user.name}</div>
+                    <div style={{ fontSize: 11, textTransform: 'uppercase', color: 'var(--accent)' }}>{user.role} Member</div>
+                  </div>
+                  <button onClick={logout} className="ghost" style={{ padding: '8px 16px' }}>Logout</button>
                 </div>
-                <button onClick={logout} className="ghost" style={{ padding: '8px 16px' }}>Logout</button>
-              </div>
-            ) : (
-              <>
-                <Link to="/register" className="nav-link" style={{ marginRight: 10 }}>Register</Link>
-                <Link to="/login" className="btn btn-primary" style={{ textDecoration: "none" }}>Member Sign In</Link>
-              </>
-            )}
-          </div>
+              ) : (
+                <>
+                  <Link to="/register" className="nav-link" style={{ marginRight: 10 }}>Register</Link>
+                  <Link to="/login" className="btn btn-primary" style={{ textDecoration: "none" }}>Member Sign In</Link>
+                </>
+              )}
+            </div>
+          </nav>
         </div>
       </header>
 
@@ -210,6 +223,7 @@ export default function App() {
         <Route path="/room/:type" element={<RoomDetails />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        {isAdmin && <Route path="/admin" element={<AdminDashboard />} />}
       </Routes>
 
       <footer className="footer">
@@ -246,7 +260,7 @@ export default function App() {
           </div>
         </div>
       </footer>
-    </div>
+    </div >
   );
 }
 

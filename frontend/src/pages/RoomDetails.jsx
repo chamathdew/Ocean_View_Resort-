@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { ROOM_DATA } from "../utils/roomData";
 
 export default function RoomDetails() {
     const { type } = useParams();
-    const navigate = useNavigate();
     const [activeImage, setActiveImage] = useState(0);
 
     // Default to Double if type is invalid

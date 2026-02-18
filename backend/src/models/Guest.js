@@ -6,6 +6,8 @@ const guestSchema = new mongoose.Schema(
     address: String,
     contactNumber: { type: String, required: true },
     idNumber: { type: String, required: true },
+    dateOfBirth: String,
+    gender: String,
   },
   { timestamps: true }
 );

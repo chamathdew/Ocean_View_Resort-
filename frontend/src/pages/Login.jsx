@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
-const API = "http://localhost:5000";
+const API = `http://${window.location.hostname}:5000`;
 
 export default function Login() {
     const [email, setEmail] = useState("");
@@ -15,7 +15,11 @@ export default function Login() {
             const { data } = await axios.post(`${API}/api/auth/login`, { email, password });
             localStorage.setItem("token", data.token);
             localStorage.setItem("user", JSON.stringify(data.user));
-            window.location.href = "/";
+            if (data.user.role === "admin") {
+                window.location.href = "/admin";
+            } else {
+                window.location.href = "/";
+            }
         } catch (err) {
             setError(err.response?.data?.message || "Authentication failed. Please verify your credentials.");
         }

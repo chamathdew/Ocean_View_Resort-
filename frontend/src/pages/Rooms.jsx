@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const API = "http://localhost:5000";
+const API = `http://${window.location.hostname}:5000`;
 
 export default function Rooms() {
   const [rooms, setRooms] = useState([]);
@@ -10,13 +10,7 @@ export default function Rooms() {
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
 
-  useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) setUser(JSON.parse(savedUser));
-    load();
-  }, []);
-
-  async function load() {
+  const load = React.useCallback(async () => {
     setLoading(true);
     try {
       const { data } = await axios.get(`${API}/api/rooms`);
@@ -26,7 +20,13 @@ export default function Rooms() {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) setUser(JSON.parse(savedUser));
+    load();
+  }, [load]);
 
   async function addRoom(e) {
     e.preventDefault();
@@ -68,7 +68,7 @@ export default function Rooms() {
       </div>
 
       {isAdmin ? (
-        <div style={{ background: "var(--card)", padding: 32, borderRadius: 24, boxShadow: 'var(--shadow-md)', border: "1px solid var(--border)", marginBottom: 48 }}>
+        <div className="glass-panel" style={{ padding: 32, marginBottom: 48 }}>
           <h3 style={{ marginTop: 0, marginBottom: 24, fontSize: 22 }}>Add New Suite</h3>
           <form onSubmit={addRoom} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 24, alignItems: "end" }}>
             <div className="field">
@@ -99,7 +99,7 @@ export default function Rooms() {
               </select>
             </div>
 
-            <button type="submit" className="btn-accent" style={{ height: 50 }}>Register Suite</button>
+            <button type="submit" className="btn btn-accent" style={{ height: 52 }}>Register Suite</button>
           </form>
           {msg && <p style={{ marginTop: 20, fontSize: 14, fontWeight: 600, color: msg.includes('✅') ? 'green' : 'red' }}>{msg}</p>}
         </div>
@@ -130,14 +130,15 @@ export default function Rooms() {
                   <span style={{
                     padding: "6px 14px",
                     borderRadius: 100,
-                    fontSize: 12,
-                    background: r.status === "active" ? "#dcfce7" : "#fee2e2",
-                    color: r.status === "active" ? "#166534" : "#991b1b",
-                    fontWeight: 700,
+                    fontSize: 11,
+                    background: r.status === "active" ? "rgba(34, 197, 94, 0.15)" : "rgba(239, 68, 68, 0.15)",
+                    color: r.status === "active" ? "#4ade80" : "#f87171",
+                    border: `1px solid ${r.status === "active" ? "rgba(34, 197, 94, 0.3)" : "rgba(239, 68, 68, 0.3)"}`,
+                    fontWeight: 800,
                     textTransform: 'uppercase',
-                    letterSpacing: '0.5px'
+                    letterSpacing: '1px'
                   }}>
-                    {r.status === 'active' ? 'Available' : 'Maintenance'}
+                    {r.status === 'active' ? '● Available' : '○ Maintenance'}
                   </span>
                 </td>
                 {isAdmin && (

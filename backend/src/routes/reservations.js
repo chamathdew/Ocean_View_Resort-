@@ -2,6 +2,19 @@ const router = require("express").Router();
 const Reservation = require("../models/Reservation");
 const Room = require("../models/Room");
 const Guest = require("../models/Guest");
+const { auth, admin } = require("../middleware/auth");
+
+/* 0️⃣ GET ALL RESERVATIONS (ADMIN) */
+router.get("/", auth, admin, async (req, res) => {
+  try {
+    const reservations = await Reservation.find()
+      .populate("guestId roomId")
+      .sort({ createdAt: -1 });
+    res.json(reservations);
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+});
 
 /* 1️⃣ GET AVAILABLE ROOMS */
 router.get("/available", async (req, res) => {
@@ -31,13 +44,13 @@ router.get("/available", async (req, res) => {
 /* 2️⃣ CREATE RESERVATION */
 router.post("/", async (req, res) => {
   try {
-    const { fullName, address, contactNumber, idNumber, roomId, checkIn, checkOut } = req.body;
+    const { fullName, address, contactNumber, idNumber, dateOfBirth, gender, roomId, checkIn, checkOut } = req.body;
 
     if (new Date(checkOut) <= new Date(checkIn))
       return res.status(400).json({ message: "Invalid date range" });
 
     // create guest
-    const guest = await Guest.create({ fullName, address, contactNumber, idNumber });
+    const guest = await Guest.create({ fullName, address, contactNumber, idNumber, dateOfBirth, gender });
 
     // conflict check
     const conflict = await Reservation.findOne({
