@@ -105,6 +105,20 @@ export default function Reservations() {
     }
   }
 
+  const handleWhatsAppShare = () => {
+    if (!reservationData) return;
+    const message = `*Ocean View Resort - Booking Confirmation* 🏝️\n\n` +
+      `Hello! My booking at Ocean View Resort is confirmed.\n\n` +
+      `*Reservation No:* ${reservationData.reservationNo}\n` +
+      `*Check-in:* ${new Date(checkIn).toLocaleDateString()}\n` +
+      `*Check-out:* ${new Date(checkOut).toLocaleDateString()}\n\n` +
+      `You can view my digital invoice here: ${window.location.origin}/search?ref=${reservationData.reservationNo}`;
+
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/${contactNumber.replace(/\D/g, '')}?text=${encodedMessage}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   // --- RENDER SUCCESS ---
   if (reservationData) {
     return (
@@ -118,6 +132,9 @@ export default function Reservations() {
           <button onClick={() => downloadInvoice(reservationData)} className="btn btn-primary" style={{ width: "100%", marginBottom: 16 }}>
             Download Invoice 📄
           </button>
+          <button onClick={handleWhatsAppShare} className="btn btn-accent" style={{ width: "100%", marginBottom: 24, background: '#25D366', color: 'white', border: 'none' }}>
+            Get Invoice on WhatsApp 💬
+          </button>
           <button onClick={() => { setReservationData(null); setSelectedRoomId(""); }} className="ghost">
             Book Another
           </button>
@@ -130,63 +147,39 @@ export default function Reservations() {
     <div className="container" style={{ maxWidth: 1400, padding: 0 }}>
 
       {/* HERO HEADER */}
-      <div style={{
-        background: 'linear-gradient(135deg, var(--primary) 0%, var(--accent) 150%)',
-        borderRadius: '0 0 40px 40px',
-        padding: '60px 20px 100px',
-        textAlign: 'center',
-        color: 'white',
-        marginBottom: -50,
-        position: 'relative'
-      }}>
-        <h1 style={{ fontSize: 42, margin: '0 0 16px', textShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>Book Your Paradise</h1>
-        <p style={{ fontSize: 18, opacity: 0.9, maxWidth: 600, margin: '0 auto' }}>Select your dates and suite to instantly view availability.</p>
+      <div className="booking-hero">
+        <h1>Book Your Paradise</h1>
+        <p>Select your dates and suite to instantly view availability.</p>
       </div>
 
       {/* FLOATING SEARCH BAR */}
-      <div className="container" style={{ position: 'relative', zIndex: 10, padding: '0 40px', marginBottom: 80, marginTop: -40 }}>
-        <div className="glass-panel" style={{
-          padding: '30px 40px',
-          borderRadius: 100,
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 48,
-          alignItems: 'center',
-          boxShadow: '0 25px 50px -12px rgba(0,0,0,0.15)',
-          background: 'var(--card-bg)',
-          maxWidth: 1100,
-          margin: '0 auto',
-          minHeight: 100
-        }}>
-
+      <div className="booking-search-container">
+        <div className="booking-search-bar glass-panel">
           {/* Date Inputs */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, flex: 2, paddingLeft: 10, borderRight: '1px solid var(--border)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span style={{ fontSize: 24 }}>📅</span>
-              <div>
-                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)' }}>Check-in</label>
-                <input type="date" value={checkIn} onChange={e => setCheckIn(e.target.value)}
-                  style={{ border: 'none', background: 'transparent', fontWeight: 600, fontSize: 15, color: 'var(--text)', fontFamily: 'inherit' }} />
+          <div className="search-dates">
+            <div className="search-field">
+              <span className="search-icon">📅</span>
+              <div className="search-input-group">
+                <label>Check-in</label>
+                <input type="date" value={checkIn} onChange={e => setCheckIn(e.target.value)} />
               </div>
             </div>
-            <span style={{ color: 'var(--border)' }}>|</span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div>
-                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)' }}>Check-out</label>
-                <input type="date" value={checkOut} onChange={e => setCheckOut(e.target.value)}
-                  style={{ border: 'none', background: 'transparent', fontWeight: 600, fontSize: 15, color: 'var(--text)', fontFamily: 'inherit' }} />
+            <span className="search-divider">|</span>
+            <div className="search-field">
+              <div className="search-input-group">
+                <label>Check-out</label>
+                <input type="date" value={checkOut} onChange={e => setCheckOut(e.target.value)} />
               </div>
             </div>
           </div>
 
           {/* Room Select */}
-          <div style={{ flex: 1, paddingRight: 10 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span style={{ fontSize: 24 }}>🛏️</span>
-              <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)' }}>Experience</label>
-                <select value={roomType} onChange={e => { setRoomType(e.target.value); setSelectedRoomId(""); }}
-                  style={{ width: '100%', border: 'none', background: 'transparent', fontWeight: 600, fontSize: 15, color: 'var(--text)', padding: 0, cursor: 'pointer' }}>
+          <div className="search-experience">
+            <div className="search-field">
+              <span className="search-icon">🛏️</span>
+              <div className="search-input-group">
+                <label>Experience</label>
+                <select value={roomType} onChange={e => { setRoomType(e.target.value); setSelectedRoomId(""); }}>
                   <option>Single</option>
                   <option>Double</option>
                   <option>Family</option>
@@ -197,57 +190,47 @@ export default function Reservations() {
           </div>
 
           {/* Search Button */}
-          <div>
-            <button onClick={handleSearch} className="btn btn-primary" style={{ borderRadius: 50, padding: '12px 32px', height: 50 }}>
+          <div className="search-actions">
+            <button onClick={handleSearch} className="btn btn-primary search-btn">
               {loading ? "Searching..." : "Check Availability"}
             </button>
           </div>
         </div>
       </div>
 
-      <div style={{ padding: '0 40px', display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 60, alignItems: 'start', maxWidth: 1400, margin: '0 auto' }}>
-
+      <div className="booking-content-grid">
         {/* LEFT COLUMN: ROOMS */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ margin: 0, fontSize: 18 }}>
+        <div className="booking-main">
+          <div className="section-header">
+            <h3>
               {availableRooms.length > 0 ? `Available Suites (${availableRooms.length})` : "Start Your Search"}
             </h3>
-            {loading && <span style={{ fontSize: 12, color: 'var(--primary)' }}>Refreshing...</span>}
+            {loading && <span className="loading-badge">Refreshing...</span>}
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          <div className="room-list">
             {!loading && availableRooms.length === 0 && (
-              <div style={{ padding: 60, textAlign: 'center', color: 'var(--text-muted)', background: 'var(--card)', borderRadius: 24, padding: 40, border: '1px dashed var(--border)' }}>
-                <div style={{ fontSize: 40, marginBottom: 16 }}>🗓️</div>
+              <div className="empty-search-state">
+                <div className="empty-icon">🗓️</div>
                 <p>Select your dates and experience above, then click <b>Check Availability</b> to find your room.</p>
               </div>
             )}
 
             {availableRooms.map(room => (
               <div key={room._id} onClick={() => setSelectedRoomId(room._id)}
-                className="glass-panel"
-                style={{
-                  padding: 24,
-                  display: 'flex',
-                  gap: 20,
-                  cursor: 'pointer',
-                  border: selectedRoomId === room._id ? '2px solid var(--accent)' : '1px solid var(--border)',
-                  transform: selectedRoomId === room._id ? 'scale(1.02)' : 'none',
-                  transition: 'all 0.3s ease'
-                }}>
-                <img src={currentRoomInfo.images[0]} style={{ width: 120, height: 100, borderRadius: 16, objectFit: 'cover' }} alt="" />
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <h4 style={{ margin: 0, fontSize: 18 }}>Suite {room.roomNumber}</h4>
-                    {selectedRoomId === room._id && <span style={{ color: 'var(--accent)', fontWeight: 700 }}>SELECTED</span>}
+                className={`booking-room-card glass-panel ${selectedRoomId === room._id ? 'selected' : ''}`}>
+                <div className="room-card-img">
+                  <img src={currentRoomInfo.images[0]} alt="" />
+                </div>
+                <div className="room-card-details">
+                  <div className="room-card-header">
+                    <h4>Suite {room.roomNumber}</h4>
+                    {selectedRoomId === room._id && <span className="selected-tag">SELECTED</span>}
                   </div>
-                  <p style={{ margin: '4px 0 12px', fontSize: 14, color: 'var(--text-muted)' }}>Ocean Facing • 2nd Floor • King Bed</p>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--primary)' }}>
-                      LKR {currentRoomInfo.price.toLocaleString()}
-                    </span>
-                    <span style={{ fontSize: 12, opacity: 0.6 }}>/ night</span>
+                  <p className="room-card-features">Ocean Facing • 2nd Floor • King Bed</p>
+                  <div className="room-card-price">
+                    <span className="price-amount">LKR {currentRoomInfo.price.toLocaleString()}</span>
+                    <span className="price-unit">/ night</span>
                   </div>
                 </div>
               </div>
@@ -256,64 +239,65 @@ export default function Reservations() {
         </div>
 
         {/* RIGHT COLUMN: CHECKOUT */}
-        <div className="glass-panel" style={{ padding: 32, position: 'sticky', top: 100 }}>
-          <h3 style={{ marginTop: 0, marginBottom: 24, fontSize: 20 }}>Guest Details</h3>
+        <div className="booking-sidebar">
+          <div className="glass-panel checkout-panel">
+            <h3>Guest Details</h3>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {/* Scanner */}
-            <div style={{ background: 'rgba(var(--primary-rgb), 0.05)', borderRadius: 16, padding: 12 }}>
-              <input type="file" id="idscan" style={{ display: 'none' }} accept="image/*" onChange={handleIdUpload} disabled={scanningId} />
-              <label htmlFor="idscan" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--primary)' }}>
-                {scanningId ? "Scanning..." : "📸 Scan ID to Auto-fill"}
-              </label>
-            </div>
-
-            <div className="field">
-              <label className="label">Full Name</label>
-              <input value={fullName} onChange={e => setFullName(e.target.value)} style={{ padding: 12 }} placeholder="Your Name" />
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-              <div className="field">
-                <label className="label">ID/Passport</label>
-                <input value={idNumber} onChange={e => setIdNumber(e.target.value)} style={{ padding: 12 }} />
+            <div className="checkout-form">
+              {/* Scanner */}
+              <div className="scanner-container">
+                <input type="file" id="idscan" style={{ display: 'none' }} accept="image/*" onChange={handleIdUpload} disabled={scanningId} />
+                <label htmlFor="idscan" className="scanner-label">
+                  {scanningId ? "Scanning..." : "📸 Scan ID to Auto-fill"}
+                </label>
               </div>
+
               <div className="field">
-                <label className="label">Contact</label>
-                <input value={contactNumber} onChange={e => setContactNumber(e.target.value)} style={{ padding: 12 }} />
+                <label className="label">Full Name</label>
+                <input className="input" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Your Name" />
               </div>
+
+              <div className="form-row">
+                <div className="field">
+                  <label className="label">ID/Passport</label>
+                  <input className="input" value={idNumber} onChange={e => setIdNumber(e.target.value)} placeholder="ID Number" />
+                </div>
+                <div className="field">
+                  <label className="label">Contact</label>
+                  <input className="input" value={contactNumber} onChange={e => setContactNumber(e.target.value)} placeholder="Phone" />
+                </div>
+              </div>
+
+              <div className="divider"></div>
+
+              {/* Price Calculation */}
+              <div className="calc-row">
+                <span className="label">Price per Night</span>
+                <span>LKR {currentRoomInfo.price.toLocaleString()}</span>
+              </div>
+
+              <div className="calc-row">
+                <span className="label">Duration</span>
+                <span>{Math.max(1, Math.ceil((new Date(checkOut) - new Date(checkIn)) / (86400000)))} Nights</span>
+              </div>
+
+              <div className="divider-dashed"></div>
+
+              <div className="total-due">
+                <span>Total Due</span>
+                <span className="total-amount">
+                  LKR {(currentRoomInfo.price * Math.max(1, Math.ceil((new Date(checkOut) - new Date(checkIn)) / (86400000)))).toLocaleString()}
+                </span>
+              </div>
+
+              {msg && <div className={`msg-banner ${msg.includes('✅') ? 'success' : 'error'}`}>{msg}</div>}
+
+              <button onClick={bookNow} disabled={loading} className="btn btn-accent confirm-btn">
+                {loading ? "Processing..." : selectedRoomId ? "Confirm Booking" : "Select a Room First"}
+              </button>
             </div>
-
-            <div style={{ height: 1, background: 'var(--border)', margin: '16px 0' }}></div>
-
-            {/* Price Calculation */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, marginBottom: 8 }}>
-              <span style={{ color: 'var(--text-muted)' }}>Price per Night</span>
-              <span>LKR {currentRoomInfo.price.toLocaleString()}</span>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, marginBottom: 8 }}>
-              <span style={{ color: 'var(--text-muted)' }}>Duration</span>
-              <span>{Math.max(1, Math.ceil((new Date(checkOut) - new Date(checkIn)) / (86400000)))} Nights</span>
-            </div>
-
-            <div style={{ width: '100%', borderTop: '1px dashed var(--border)', margin: '8px 0' }}></div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 20, fontWeight: 800, marginTop: 8 }}>
-              <span>Total Due</span>
-              <span style={{ color: 'var(--primary)' }}>
-                LKR {(currentRoomInfo.price * Math.max(1, Math.ceil((new Date(checkOut) - new Date(checkIn)) / (86400000)))).toLocaleString()}
-              </span>
-            </div>
-
-            {msg && <div style={{ background: msg.includes('✅') ? 'rgba(0,255,0,0.1)' : 'rgba(255,0,0,0.1)', padding: 10, borderRadius: 8, fontSize: 13, textAlign: 'center', color: msg.includes('✅') ? 'green' : 'red' }}>{msg}</div>}
-
-            <button onClick={bookNow} disabled={loading} className="btn btn-accent" style={{ width: '100%', marginTop: 10, height: 50 }}>
-              {loading ? "Processing..." : selectedRoomId ? "Confirm Booking" : "Select a Room First"}
-            </button>
           </div>
         </div>
-
       </div>
     </div>
   );

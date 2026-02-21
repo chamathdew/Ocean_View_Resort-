@@ -10,6 +10,7 @@ import ReservationList from "./pages/ReservationList";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import About from "./pages/About";
+import Help from "./pages/Help";
 import RoomDetails from "./pages/RoomDetails";
 import AdminDashboard from "./pages/AdminDashboard";
 import { ROOM_DATA } from "./utils/roomData";
@@ -20,19 +21,41 @@ function Home() {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
 
+
+
+  const [transports, setTransports] = useState([]);
+  const [attractions, setAttractions] = useState([]);
+  const [checkIn, setCheckIn] = useState("");
+  const [checkOut, setCheckOut] = useState("");
+  const navigate = useNavigate();
+
+  const handleCheckAvailability = () => {
+    if (!checkIn || !checkOut) {
+      alert("Please select both Check-in and Check-out dates.");
+      return;
+    }
+    navigate(`/book?checkIn=${checkIn}&checkOut=${checkOut}`);
+  };
+
   useEffect(() => {
-    async function fetchRooms() {
+    async function fetchData() {
       try {
-        const { data } = await axios.get(`${API}/api/rooms`);
-        // Show all rooms from database
-        setRooms(data);
+        const [roomsRes, transportsRes, attractionsRes] = await Promise.all([
+          axios.get(`${API}/api/rooms`),
+          axios.get(`${API}/api/transports`),
+          axios.get(`${API}/api/attractions`)
+        ]);
+
+        setRooms(roomsRes.data);
+        setTransports(transportsRes.data);
+        setAttractions(attractionsRes.data);
       } catch (err) {
-        console.error("Error fetching rooms:", err);
+        console.error("Error fetching data:", err);
       } finally {
         setLoading(false);
       }
     }
-    fetchRooms();
+    fetchData();
   }, []);
 
   return (
@@ -47,12 +70,12 @@ function Home() {
             <div className="search-card">
               <div className="field">
                 <div className="label">Check-in Date</div>
-                <input type="date" />
+                <input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} />
               </div>
 
               <div className="field">
                 <div className="label">Check-out Date</div>
-                <input type="date" />
+                <input type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} />
               </div>
 
               <div className="field">
@@ -65,7 +88,7 @@ function Home() {
                 </select>
               </div>
 
-              <Link to="/book" className="btn btn-accent" style={{ textDecoration: 'none', justifyContent: 'center' }}>Check Availability</Link>
+              <button onClick={handleCheckAvailability} className="btn btn-accent" style={{ justifyContent: 'center' }}>Check Availability</button>
             </div>
           </div>
         </div>
@@ -134,6 +157,56 @@ function Home() {
           </div>
         </div>
       </main>
+
+      <section className="section section-transport">
+        <div className="container">
+          <div className="section-title">
+            <span>Explore Freely</span>
+            <h2>Rent A Ride</h2>
+            <p style={{ color: "var(--text-light)", marginTop: 10 }}>Choose your preferred mode of transport to explore the coast.</p>
+          </div>
+
+          <div className="transport-grid">
+            {transports.length > 0 ? transports.map((item, i) => (
+              <div key={i} className="transport-card">
+                <div className="transport-icon">{item.icon}</div>
+                <h3>{item.name}</h3>
+                <p>{item.desc}</p>
+                <div className="price-tag">{item.price} / day</div>
+                <button className="btn btn-sm btn-accent" style={{ marginTop: 15, width: '100%' }}>Rent Now</button>
+              </div>
+            )) : (
+              <p style={{ color: "var(--text-muted)" }}>No transport options available at the moment.</p>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <section className="section section-attractions">
+        <div className="container">
+          <div className="section-title">
+            <span>Discover Galle</span>
+            <h2>Nearby Attractions</h2>
+            <p style={{ color: "var(--text-light)", marginTop: 10 }}>Immerse yourself in history and nature just minutes away.</p>
+          </div>
+
+          <div className="attraction-grid">
+            {attractions.length > 0 ? attractions.map((place, i) => (
+              <div key={i} className="attraction-card">
+                <div className="attraction-img-wrap">
+                  <img src={place.img} alt={place.name} loading="lazy" />
+                </div>
+                <div className="attraction-info">
+                  <h3>{place.name}</h3>
+                  <p>{place.desc}</p>
+                </div>
+              </div>
+            )) : (
+              <p style={{ color: "var(--text-muted)" }}>No attractions listed at the moment.</p>
+            )}
+          </div>
+        </div>
+      </section>
     </>
   );
 }
@@ -189,6 +262,7 @@ export default function App() {
             {isAdmin && <Link to="/admin" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>}
             {isAdmin && <Link to="/rooms" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Inventory</Link>}
             <Link to="/about" className="nav-link" onClick={() => setMobileMenuOpen(false)}>About Us</Link>
+            <Link to="/help" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Help Center</Link>
             {!isAdmin && <Link to="/book" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Book Room</Link>}
             <Link to="/search" className="nav-link" onClick={() => setMobileMenuOpen(false)}>My Booking</Link>
             <div className="header-actions">
@@ -220,6 +294,7 @@ export default function App() {
         <Route path="/book" element={<Reservations />} />
         <Route path="/search" element={<ReservationList />} />
         <Route path="/about" element={<About />} />
+        <Route path="/help" element={<Help />} />
         <Route path="/room/:type" element={<RoomDetails />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -241,9 +316,9 @@ export default function App() {
               <h4>Quick Links</h4>
               <ul className="footer-links">
                 <li><Link to="/about">Our Story</Link></li>
+                <li><Link to="/help">Help & FAQ</Link></li>
                 <li><Link to="/rooms">All Suites</Link></li>
                 <li><Link to="/book">Reservations</Link></li>
-                <li><Link to="/login">Member Portal</Link></li>
               </ul>
             </div>
             <div className="footer-col">

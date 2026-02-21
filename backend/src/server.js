@@ -13,6 +13,8 @@ app.use("/api/rooms", require("./routes/rooms"));
 app.use("/api/reservations", require("./routes/reservations"));
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api", require("./routes/idScan"));
+app.use("/api/transports", require("./routes/transport"));
+app.use("/api/attractions", require("./routes/attractions"));
 
 
 

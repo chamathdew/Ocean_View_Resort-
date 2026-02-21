@@ -115,6 +115,210 @@ export default function AdminDashboard() {
                     <p style={{ color: "var(--text-light)" }}>No reservations found.</p>
                 )}
             </div>
+
+            <TransportManager />
+            <AttractionManager />
+        </div>
+
+    );
+}
+
+function TransportManager() {
+    const [transports, setTransports] = useState([]);
+    const [form, setForm] = useState({ name: "", icon: "", price: "", desc: "" });
+    const [editingId, setEditingId] = useState(null);
+
+    useEffect(() => {
+        fetchTransports();
+    }, []);
+
+    async function fetchTransports() {
+        const { data } = await axios.get(`${API}/api/transports`);
+        setTransports(data);
+    }
+
+    async function handleSubmit(e) {
+        e.preventDefault();
+        try {
+            if (editingId) {
+                await axios.put(`${API}/api/transports/${editingId}`, form);
+            } else {
+                await axios.post(`${API}/api/transports`, form);
+            }
+            setForm({ name: "", icon: "", price: "", desc: "" });
+            setEditingId(null);
+            fetchTransports();
+        } catch (err) {
+            console.error("Error saving transport:", err);
+        }
+    }
+
+    async function handleDelete(id) {
+        if (!window.confirm("Are you sure?")) return;
+        try {
+            await axios.delete(`${API}/api/transports/${id}`);
+            fetchTransports();
+        } catch (err) {
+            console.error("Error deleting transport:", err);
+        }
+    }
+
+    function handleEdit(item) {
+        setForm(item);
+        setEditingId(item._id);
+    }
+
+    return (
+        <div className="glass-panel" style={{ padding: 32, marginTop: 40 }}>
+            <h3>Manage Transport Options</h3>
+            <form onSubmit={handleSubmit} className="admin-form">
+                <div className="form-group">
+                    <label>Transport Name</label>
+                    <input className="input" placeholder="e.g. Tuk Tuk" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
+                </div>
+                <div className="form-group">
+                    <label>Icon Emoji</label>
+                    <input className="input" placeholder="e.g. 🛺" value={form.icon} onChange={e => setForm({ ...form, icon: e.target.value })} required />
+                </div>
+                <div className="form-group">
+                    <label>Price Rate</label>
+                    <input className="input" placeholder="e.g. 2,500 LKR" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} required />
+                </div>
+                <div className="form-group">
+                    <label>Short Description</label>
+                    <input className="input" placeholder="Brief details..." value={form.desc} onChange={e => setForm({ ...form, desc: e.target.value })} required />
+                </div>
+                <button type="submit" className="btn btn-primary full-width">{editingId ? "Update" : "Add"} Transport</button>
+            </form>
+
+            <div className="table-container">
+                <table className="admin-table">
+                    <thead>
+                        <tr>
+                            <th width="80">Icon</th>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Description</th>
+                            <th width="120">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {transports.map(t => (
+                            <tr key={t._id}>
+                                <td data-label="Icon" style={{ fontSize: 24, textAlign: 'center' }}>{t.icon}</td>
+                                <td data-label="Name" style={{ fontWeight: 600 }}>{t.name}</td>
+                                <td data-label="Price">{t.price}</td>
+                                <td data-label="Description" className="text-muted">{t.desc}</td>
+                                <td data-label="Actions">
+                                    <div className="action-buttons">
+                                        <button onClick={() => handleEdit(t)} className="btn-icon edit" title="Edit">✎</button>
+                                        <button onClick={() => handleDelete(t._id)} className="btn-icon delete" title="Delete">🗑</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+}
+
+function AttractionManager() {
+    const [attractions, setAttractions] = useState([]);
+    const [form, setForm] = useState({ name: "", img: "", desc: "" });
+    const [editingId, setEditingId] = useState(null);
+
+    useEffect(() => {
+        fetchAttractions();
+    }, []);
+
+    async function fetchAttractions() {
+        const { data } = await axios.get(`${API}/api/attractions`);
+        setAttractions(data);
+    }
+
+    async function handleSubmit(e) {
+        e.preventDefault();
+        try {
+            if (editingId) {
+                await axios.put(`${API}/api/attractions/${editingId}`, form);
+            } else {
+                await axios.post(`${API}/api/attractions`, form);
+            }
+            setForm({ name: "", img: "", desc: "" });
+            setEditingId(null);
+            fetchAttractions();
+        } catch (err) {
+            console.error("Error saving attraction:", err);
+        }
+    }
+
+    async function handleDelete(id) {
+        if (!window.confirm("Are you sure?")) return;
+        try {
+            await axios.delete(`${API}/api/attractions/${id}`);
+            fetchAttractions();
+        } catch (err) {
+            console.error("Error deleting attraction:", err);
+        }
+    }
+
+    function handleEdit(item) {
+        setForm(item);
+        setEditingId(item._id);
+    }
+
+    return (
+        <div className="glass-panel" style={{ padding: 32, marginTop: 40 }}>
+            <h3>Manage Attractions</h3>
+            <form onSubmit={handleSubmit} className="admin-form">
+                <div className="form-group">
+                    <label>Attraction Name</label>
+                    <input className="input" placeholder="Place Name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
+                </div>
+                <div className="form-group">
+                    <label>Image URL</label>
+                    <input className="input" placeholder="https://..." value={form.img} onChange={e => setForm({ ...form, img: e.target.value })} required />
+                </div>
+                <div className="form-group full-width">
+                    <label>Description</label>
+                    <input className="input" placeholder="Brief description of the place..." value={form.desc} onChange={e => setForm({ ...form, desc: e.target.value })} required />
+                </div>
+                <button type="submit" className="btn btn-primary full-width">{editingId ? "Update" : "Add"} Attraction</button>
+            </form>
+
+            <div className="table-container">
+                <table className="admin-table">
+                    <thead>
+                        <tr>
+                            <th width="100">Image</th>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th width="120">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {attractions.map(a => (
+                            <tr key={a._id}>
+                                <td data-label="Image">
+                                    <div className="table-img-wrap">
+                                        <img src={a.img} alt={a.name} />
+                                    </div>
+                                </td>
+                                <td data-label="Name" style={{ fontWeight: 600 }}>{a.name}</td>
+                                <td data-label="Description" className="text-muted">{a.desc}</td>
+                                <td data-label="Actions">
+                                    <div className="action-buttons">
+                                        <button onClick={() => handleEdit(a)} className="btn-icon edit" title="Edit">✎</button>
+                                        <button onClick={() => handleDelete(a._id)} className="btn-icon delete" title="Delete">🗑</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }
