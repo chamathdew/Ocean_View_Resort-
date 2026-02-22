@@ -1,7 +1,5 @@
 <div align="center">
 
-<img src="https://img.icons8.com/clouds/200/beach-front.png" alt="Logo" width="120" />
-
 # 🌊 Ocean View Resort
 ### **Next-Gen Room Reservation & Management System**
 
