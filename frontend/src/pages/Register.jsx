@@ -40,13 +40,7 @@ export default function Register() {
                         <div className="label">Secure Password</div>
                         <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required placeholder="••••••••" />
                     </div>
-                    <div className="field">
-                        <div className="label">Membership Type (Internal Use Only)</div>
-                        <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
-                            <option value="user">Standard Member</option>
-                            <option value="admin">Resort Administrator</option>
-                        </select>
-                    </div>
+
 
                     {error && <p style={{ color: "#b91c1c", fontSize: 13, textAlign: 'center', margin: 0, fontWeight: 500 }}>{error}</p>}
 
