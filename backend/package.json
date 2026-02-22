@@ -15,8 +15,10 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.1.6",
     "multer": "^2.0.2",
+    "qrcode-terminal": "^0.12.0",
     "sharp": "^0.34.5",
-    "tesseract.js": "^7.0.0"
+    "tesseract.js": "^7.0.0",
+    "whatsapp-web.js": "^1.34.6"
   },
   "devDependencies": {
     "nodemon": "^3.1.11"

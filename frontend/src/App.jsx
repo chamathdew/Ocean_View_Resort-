@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route, Link, useNavigate } from "react-router-dom";
+import { Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import "./App.css";
 
@@ -14,6 +14,7 @@ import Help from "./pages/Help";
 import RoomDetails from "./pages/RoomDetails";
 import AdminDashboard from "./pages/AdminDashboard";
 import { ROOM_DATA } from "./utils/roomData";
+import ScrollToTop from "./components/ScrollToTop";
 
 const API = `http://${window.location.hostname}:5000`;
 
@@ -169,11 +170,15 @@ function Home() {
           <div className="transport-grid">
             {transports.length > 0 ? transports.map((item, i) => (
               <div key={i} className="transport-card">
-                <div className="transport-icon">{item.icon}</div>
+                <div className="transport-img-wrap" style={{ width: '100%', height: '180px', borderRadius: '16px', overflow: 'hidden', marginBottom: '16px' }}>
+                  <img src={item.image || item.icon} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
                 <h3>{item.name}</h3>
-                <p>{item.desc}</p>
-                <div className="price-tag">{item.price} / day</div>
-                <button className="btn btn-sm btn-accent" style={{ marginTop: 15, width: '100%' }}>Rent Now</button>
+                <p style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-light)' }}>
+                  📍 {item.location || item.desc}
+                </p>
+                <div className="price-tag" style={{ marginTop: '10px' }}>{item.price} / trip</div>
+                <button className="btn btn-sm btn-accent" style={{ marginTop: 15, width: '100%' }}>Book Transport</button>
               </div>
             )) : (
               <p style={{ color: "var(--text-muted)" }}>No transport options available at the moment.</p>
@@ -216,6 +221,8 @@ export default function App() {
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
@@ -242,52 +249,55 @@ export default function App() {
 
   return (
     <div className="app-container">
-      <header className="ov-header">
-        <div className="container bar">
-          <Link to="/" className="brand" aria-label="Ocean View Resort" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <span className="brand-dot" />
-            Ocean View Resort
-          </Link>
+      {!isAdminRoute && (
+        <header className="ov-header">
+          <div className="container bar">
+            <Link to="/" className="brand" aria-label="Ocean View Resort" style={{ textDecoration: 'none', color: 'inherit' }}>
+              <span className="brand-dot" />
+              Ocean View Resort
+            </Link>
 
-          <button
-            className="mobile-menu-toggle"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle Menu"
-            style={{ display: 'none', background: 'none', border: 'none', fontSize: 24, cursor: 'pointer', color: 'var(--primary)' }}
-          >
-            ☰
-          </button>
+            <button
+              className="mobile-menu-toggle"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle Menu"
+              style={{ display: 'none', background: 'none', border: 'none', fontSize: 24, cursor: 'pointer', color: 'var(--primary)' }}
+            >
+              ☰
+            </button>
 
-          <nav className={`header-nav ${mobileMenuOpen ? 'open' : ''}`}>
-            {isAdmin && <Link to="/admin" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>}
-            {isAdmin && <Link to="/rooms" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Inventory</Link>}
-            <Link to="/about" className="nav-link" onClick={() => setMobileMenuOpen(false)}>About Us</Link>
-            <Link to="/help" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Help Center</Link>
-            {!isAdmin && <Link to="/book" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Book Room</Link>}
-            <Link to="/search" className="nav-link" onClick={() => setMobileMenuOpen(false)}>My Booking</Link>
-            <div className="header-actions">
-              <button onClick={toggleTheme} className="ghost" style={{ padding: '8px 12px', marginRight: 15, fontSize: 18 }}>
-                {theme === 'light' ? '🌙' : '☀️'}
-              </button>
-              {user ? (
-                <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--primary)' }}>{user.name}</div>
-                    <div style={{ fontSize: 11, textTransform: 'uppercase', color: 'var(--accent)' }}>{user.role} Member</div>
+            <nav className={`header-nav ${mobileMenuOpen ? 'open' : ''}`}>
+              {isAdmin && <Link to="/admin" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>}
+              {isAdmin && <Link to="/rooms" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Inventory</Link>}
+              <Link to="/about" className="nav-link" onClick={() => setMobileMenuOpen(false)}>About Us</Link>
+              <Link to="/help" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Help Center</Link>
+              {!isAdmin && <Link to="/book" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Book Room</Link>}
+              <Link to="/search" className="nav-link" onClick={() => setMobileMenuOpen(false)}>My Booking</Link>
+              <div className="header-actions">
+                <button onClick={toggleTheme} className="ghost" style={{ padding: '8px 12px', marginRight: 15, fontSize: 18 }}>
+                  {theme === 'light' ? '🌙' : '☀️'}
+                </button>
+                {user ? (
+                  <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--primary)' }}>{user.name}</div>
+                      <div style={{ fontSize: 11, textTransform: 'uppercase', color: 'var(--accent)' }}>{user.role} Member</div>
+                    </div>
+                    <button onClick={logout} className="ghost" style={{ padding: '8px 16px' }}>Logout</button>
                   </div>
-                  <button onClick={logout} className="ghost" style={{ padding: '8px 16px' }}>Logout</button>
-                </div>
-              ) : (
-                <>
-                  <Link to="/register" className="nav-link" style={{ marginRight: 10 }}>Register</Link>
-                  <Link to="/login" className="btn btn-primary" style={{ textDecoration: "none" }}>Member Sign In</Link>
-                </>
-              )}
-            </div>
-          </nav>
-        </div>
-      </header>
+                ) : (
+                  <>
+                    <Link to="/register" className="nav-link" style={{ marginRight: 10 }}>Register</Link>
+                    <Link to="/login" className="btn btn-primary" style={{ textDecoration: "none" }}>Member Sign In</Link>
+                  </>
+                )}
+              </div>
+            </nav>
+          </div>
+        </header>
+      )}
 
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/rooms" element={<Rooms />} />
@@ -301,40 +311,42 @@ export default function App() {
         {isAdmin && <Route path="/admin" element={<AdminDashboard />} />}
       </Routes>
 
-      <footer className="footer">
-        <div className="container">
-          <div className="footer-grid">
-            <div className="footer-col">
-              <Link to="/" className="brand" style={{ color: '#fff', marginBottom: 20 }}>
-                <span className="brand-dot" /> Ocean View
-              </Link>
-              <p style={{ opacity: 0.6, fontSize: 14 }}>
-                A sanctuary of peace and luxury since 1998. Located on the pristine southern coast, offering breathtaking views and world-class hospitality.
-              </p>
+      {!isAdminRoute && (
+        <footer className="footer">
+          <div className="container">
+            <div className="footer-grid">
+              <div className="footer-col">
+                <Link to="/" className="brand" style={{ color: '#fff', marginBottom: 20 }}>
+                  <span className="brand-dot" /> Ocean View
+                </Link>
+                <p style={{ opacity: 0.6, fontSize: 14 }}>
+                  A sanctuary of peace and luxury since 1998. Located on the pristine southern coast, offering breathtaking views and world-class hospitality.
+                </p>
+              </div>
+              <div className="footer-col">
+                <h4>Quick Links</h4>
+                <ul className="footer-links">
+                  <li><Link to="/about">Our Story</Link></li>
+                  <li><Link to="/help">Help & FAQ</Link></li>
+                  <li><Link to="/rooms">All Suites</Link></li>
+                  <li><Link to="/book">Reservations</Link></li>
+                </ul>
+              </div>
+              <div className="footer-col">
+                <h4>Contact Us</h4>
+                <ul className="footer-links">
+                  <li>📍 Galle Road, South Coast, Sri Lanka</li>
+                  <li>📞 +94 11 234 5678</li>
+                  <li>✉️ stay@oceanviewresort.com</li>
+                </ul>
+              </div>
             </div>
-            <div className="footer-col">
-              <h4>Quick Links</h4>
-              <ul className="footer-links">
-                <li><Link to="/about">Our Story</Link></li>
-                <li><Link to="/help">Help & FAQ</Link></li>
-                <li><Link to="/rooms">All Suites</Link></li>
-                <li><Link to="/book">Reservations</Link></li>
-              </ul>
-            </div>
-            <div className="footer-col">
-              <h4>Contact Us</h4>
-              <ul className="footer-links">
-                <li>📍 Galle Road, South Coast, Sri Lanka</li>
-                <li>📞 +94 11 234 5678</li>
-                <li>✉️ stay@oceanviewresort.com</li>
-              </ul>
+            <div className="footer-bottom">
+              <p>© 2026 Ocean View Resort · All Rights Reserved</p>
             </div>
           </div>
-          <div className="footer-bottom">
-            <p>© 2026 Ocean View Resort · Redefining coastal luxury · Crafted by Dewmovies</p>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      )}
     </div >
   );
 }

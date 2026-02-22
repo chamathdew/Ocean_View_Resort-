@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
+require("./services/whatsappService"); // Initialize WhatsApp Service
 
 const app = express();
 

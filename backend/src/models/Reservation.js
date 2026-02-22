@@ -24,6 +24,8 @@ const reservationSchema = new mongoose.Schema(
       enum: ["booked", "checked_in", "checked_out", "canceled"],
       default: "booked",
     },
+
+    isPaid: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

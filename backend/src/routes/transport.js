@@ -16,9 +16,9 @@ router.get("/", async (req, res) => {
 router.post("/", async (req, res) => {
     const transport = new Transport({
         name: req.body.name,
-        icon: req.body.icon,
+        image: req.body.image,
         price: req.body.price,
-        desc: req.body.desc,
+        location: req.body.location,
     });
 
     try {
@@ -36,9 +36,9 @@ router.put("/:id", async (req, res) => {
         if (!transport) return res.status(404).json({ message: "Transport not found" });
 
         if (req.body.name) transport.name = req.body.name;
-        if (req.body.icon) transport.icon = req.body.icon;
+        if (req.body.image) transport.image = req.body.image;
         if (req.body.price) transport.price = req.body.price;
-        if (req.body.desc) transport.desc = req.body.desc;
+        if (req.body.location) transport.location = req.body.location;
 
         const updatedTransport = await transport.save();
         res.json(updatedTransport);
