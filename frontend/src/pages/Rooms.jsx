@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const API = `http://${window.location.hostname}:5000`;
+const API = `http://${window.location.hostname}:8080`;
 
 export default function Rooms() {
   const [rooms, setRooms] = useState([]);
@@ -14,9 +14,10 @@ export default function Rooms() {
     setLoading(true);
     try {
       const { data } = await axios.get(`${API}/api/rooms`);
+      console.log("data we got:", data);
       setRooms(data);
     } catch (err) {
-      console.error("Load failed", err);
+      console.log("error getting rooms", err);
     } finally {
       setLoading(false);
     }
@@ -37,10 +38,11 @@ export default function Rooms() {
         headers: { Authorization: `Bearer ${token}` }
       });
       setForm({ roomNumber: "", roomType: "Single", status: "active" });
-      setMsg("✅ Room added successfully");
+      setMsg("Room saved!");
       load();
     } catch (err) {
-      setMsg(err?.response?.data?.message || "❌ Error adding room");
+      console.log(err);
+      setMsg("Error saving room");
     }
   }
 
@@ -58,6 +60,11 @@ export default function Rooms() {
   }
 
   const isAdmin = user && user.role === "admin";
+
+  const counts = { Single: 0, Double: 0, Family: 0, Suite: 0 };
+  rooms.forEach(r => {
+    if (r.status === 'active') counts[r.roomType] = (counts[r.roomType] || 0) + 1;
+  });
 
   return (
     <div className="container" style={{ paddingTop: 60, paddingBottom: 100 }}>
@@ -84,10 +91,10 @@ export default function Rooms() {
             <div className="field">
               <div className="label">Suite Type</div>
               <select value={form.roomType} onChange={(e) => setForm({ ...form, roomType: e.target.value })}>
-                <option>Single</option>
-                <option>Double</option>
-                <option>Family</option>
-                <option>Suite</option>
+                <option value="Single">Single ({counts.Single} Available)</option>
+                <option value="Double">Double ({counts.Double} Available)</option>
+                <option value="Family">Family ({counts.Family} Available)</option>
+                <option value="Suite">Suite ({counts.Suite} Available)</option>
               </select>
             </div>
 

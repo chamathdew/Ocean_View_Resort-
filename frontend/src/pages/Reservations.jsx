@@ -3,7 +3,7 @@ import axios from "axios";
 import { downloadInvoice } from "../utils/invoice";
 import { ROOM_DATA } from "../utils/roomData";
 
-const API = `http://${window.location.hostname}:5000`;
+const API = `http://${window.location.hostname}:8080`;
 
 export default function Reservations() {
   // --- STATE ---
@@ -12,6 +12,18 @@ export default function Reservations() {
   const [checkOut, setCheckOut] = useState("2026-03-05");
   const [availableRooms, setAvailableRooms] = useState([]);
   const [selectedRoomId, setSelectedRoomId] = useState("");
+  const [counts, setCounts] = useState({ Single: 0, Double: 0, Family: 0, Suite: 0 });
+
+  useEffect(() => {
+    // Fetch all rooms to compute availability counts for the dropdown
+    axios.get(`${API}/api/rooms`).then(({ data }) => {
+      const c = { Single: 0, Double: 0, Family: 0, Suite: 0 };
+      data.forEach(r => {
+        if (r.status === 'active') c[r.roomType] = (c[r.roomType] || 0) + 1;
+      });
+      setCounts(c);
+    }).catch(console.error);
+  }, []);
 
   // guest form
   const [fullName, setFullName] = useState("");
@@ -180,10 +192,10 @@ export default function Reservations() {
               <div className="search-input-group">
                 <label>Experience</label>
                 <select value={roomType} onChange={e => { setRoomType(e.target.value); setSelectedRoomId(""); }}>
-                  <option>Single</option>
-                  <option>Double</option>
-                  <option>Family</option>
-                  <option>Suite</option>
+                  <option value="Single">Single ({counts.Single} Available)</option>
+                  <option value="Double">Double ({counts.Double} Available)</option>
+                  <option value="Family">Family ({counts.Family} Available)</option>
+                  <option value="Suite">Suite ({counts.Suite} Available)</option>
                 </select>
               </div>
             </div>

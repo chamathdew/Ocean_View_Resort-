@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 
-const API = `http://${window.location.hostname}:5000`;
+const API = `http://${window.location.hostname}:8080`;
 
 export default function Register() {
     const [form, setForm] = useState({ name: "", email: "", password: "", role: "user" });
@@ -15,7 +15,8 @@ export default function Register() {
             await axios.post(`${API}/api/auth/register`, form);
             navigate("/login");
         } catch (err) {
-            setError(err.response?.data?.message || "Registration failed. Please try again.");
+            console.error(err);
+            setError("Error registering!");
         }
     };
 
@@ -23,8 +24,8 @@ export default function Register() {
         <div className="container" style={{ maxWidth: 500, paddingTop: 100, paddingBottom: 100 }}>
             <div style={{ background: "var(--card)", padding: 48, borderRadius: 32, boxShadow: 'var(--shadow-lg)', border: "1px solid var(--border)" }}>
                 <div style={{ textAlign: 'center', marginBottom: 32 }}>
-                    <h2 style={{ fontSize: 32, marginBottom: 8 }}>Join the Resort</h2>
-                    <p style={{ color: 'var(--text-light)', margin: 0 }}>Create an account to unlock exclusive benefits.</p>
+                    <h2 style={{ fontSize: 32, marginBottom: 8 }}>Register</h2>
+                    <p style={{ color: 'var(--text-light)', margin: 0 }}>Create a new account</p>
                 </div>
 
                 <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -37,7 +38,7 @@ export default function Register() {
                         <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required placeholder="name@example.com" />
                     </div>
                     <div className="field">
-                        <div className="label">Secure Password</div>
+                        <div className="label">Password</div>
                         <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required placeholder="••••••••" />
                     </div>
 

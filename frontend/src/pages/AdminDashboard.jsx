@@ -3,7 +3,9 @@ import axios from "axios";
 import { downloadInvoice } from "../utils/invoice";
 import { useNavigate } from "react-router-dom";
 import { RoomManager, BookingRegistry, GuestSearch, CompanyProfile, SupportDesk } from "./AdminDashboardComponents";
-const API = `http://${window.location.hostname}:5000`;
+import logoImage from "../assets/logo.png";
+
+const API = `http://${window.location.hostname}:8080`;
 
 export default function AdminDashboard() {
     const [reservations, setReservations] = useState([]);
@@ -94,12 +96,11 @@ export default function AdminDashboard() {
 
             {/* Premium Sidebar */}
             <aside className={`admin-sidebar ${isMobileMenuOpen ? 'open' : ''}`}>
-                {/* Sidebar Header */}
-                <div style={{ padding: '32px 24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'linear-gradient(135deg, var(--primary), var(--accent))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '20px', boxShadow: '0 4px 10px rgba(0,0,0,0.2)' }}>O</div>
-                    <div>
-                        <div style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '0.5px' }}>OceanView</div>
-                        <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>Management v2.0</div>
+                <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                    <img src={logoImage} alt="Logo" style={{ height: '60px', objectFit: 'contain' }} />
+                    <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: '16px', fontWeight: 800, letterSpacing: '0.5px' }}>Ocean View Resorts</div>
+                        <div style={{ fontSize: '10px', color: 'var(--admin-text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>Management v2.0</div>
                     </div>
                 </div>
 

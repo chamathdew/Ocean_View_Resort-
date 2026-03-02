@@ -15,8 +15,9 @@ import RoomDetails from "./pages/RoomDetails";
 import AdminDashboard from "./pages/AdminDashboard";
 import { ROOM_DATA } from "./utils/roomData";
 import ScrollToTop from "./components/ScrollToTop";
+import logoImage from "./assets/logo.png";
 
-const API = `http://${window.location.hostname}:5000`;
+const API = `http://${window.location.hostname}:8080`;
 
 function Home() {
   const [rooms, setRooms] = useState([]);
@@ -59,6 +60,11 @@ function Home() {
     fetchData();
   }, []);
 
+  const counts = { Single: 0, Double: 0, Family: 0, Suite: 0 };
+  rooms.forEach(r => {
+    if (r.status === 'active') counts[r.roomType] = (counts[r.roomType] || 0) + 1;
+  });
+
   return (
     <>
       <section className="hero">
@@ -81,11 +87,11 @@ function Home() {
 
               <div className="field">
                 <div className="label">Preferred Suite</div>
-                <select defaultValue="Double">
-                  <option value="Single">Standard Room</option>
-                  <option value="Double">Deluxe Ocean View</option>
-                  <option value="Family">Coastal Family Haven</option>
-                  <option value="Suite">Presidential Suite</option>
+                <select defaultValue="Double" onChange={(e) => {}}>
+                  <option value="Single">Single ({counts.Single} Available)</option>
+                  <option value="Double">Double ({counts.Double} Available)</option>
+                  <option value="Family">Family ({counts.Family} Available)</option>
+                  <option value="Suite">Suite ({counts.Suite} Available)</option>
                 </select>
               </div>
 
@@ -135,8 +141,11 @@ function Home() {
                             <span>• {info.amenities[1]}</span>
                           </div>
                           <div className="price-row">
-                            <div className="price">
-                              LKR {info.price.toLocaleString()} <span>/ night</span>
+                            <div className="price" style={{display: 'flex', flexDirection: 'column'}}>
+                              <span>LKR {info.price.toLocaleString()} <span style={{fontSize: '14px', fontWeight: 'normal', color: 'var(--text-light)'}}>/ night</span></span>
+                              <span style={{fontSize: '13px', fontWeight: 'bold', color: counts[room.roomType] > 0 ? '#16a34a' : '#dc2626', marginTop: '4px'}}>
+                                {counts[room.roomType] > 0 ? `${counts[room.roomType]} Rooms Available` : 'Sold Out'}
+                              </span>
                             </div>
                             <span className="btn btn-primary btn-sm">
                               View Details
@@ -252,9 +261,8 @@ export default function App() {
       {!isAdminRoute && (
         <header className="ov-header">
           <div className="container bar">
-            <Link to="/" className="brand" aria-label="Ocean View Resort" style={{ textDecoration: 'none', color: 'inherit' }}>
-              <span className="brand-dot" />
-              Ocean View Resort
+            <Link to="/" className="brand" aria-label="Ocean View Resort" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
+              <img src={logoImage} alt="Ocean View Resort" style={{ height: '60px', objectFit: 'contain' }} />
             </Link>
 
             <button
@@ -316,8 +324,8 @@ export default function App() {
           <div className="container">
             <div className="footer-grid">
               <div className="footer-col">
-                <Link to="/" className="brand" style={{ color: '#fff', marginBottom: 20 }}>
-                  <span className="brand-dot" /> Ocean View
+                <Link to="/" className="brand" style={{ color: '#fff', marginBottom: 20, display: 'flex', alignItems: 'center' }}>
+                  <img src={logoImage} alt="Ocean View Resort" style={{ height: '60px', objectFit: 'contain' }} />
                 </Link>
                 <p style={{ opacity: 0.6, fontSize: 14 }}>
                   A sanctuary of peace and luxury since 1998. Located on the pristine southern coast, offering breathtaking views and world-class hospitality.

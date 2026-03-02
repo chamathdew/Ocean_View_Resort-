@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import logoImage from "../assets/logo.png";
 
-const API = `http://${window.location.hostname}:5000`;
+const API = `http://${window.location.hostname}:8080`;
 
 export function RoomManager() {
     const [rooms, setRooms] = useState([]);
@@ -31,6 +31,11 @@ export function RoomManager() {
         } catch (err) { console.error(err); }
     }
 
+    const counts = { Single: 0, Double: 0, Family: 0, Suite: 0 };
+    rooms.forEach(r => {
+        if (r.status === 'active') counts[r.roomType] = (counts[r.roomType] || 0) + 1;
+    });
+
     return (
         <div>
             <div style={{ marginBottom: '32px' }}>
@@ -49,10 +54,10 @@ export function RoomManager() {
                         <div className="form-group">
                             <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: 600, color: 'var(--admin-text-muted)' }}>Suite Type</label>
                             <select className="input" value={form.roomType} onChange={e => setForm({ ...form, roomType: e.target.value })} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--admin-border)', backgroundColor: 'var(--admin-card-bg)' }}>
-                                <option>Single</option>
-                                <option>Double</option>
-                                <option>Family</option>
-                                <option>Suite</option>
+                                <option value="Single">Single ({counts.Single} Available)</option>
+                                <option value="Double">Double ({counts.Double} Available)</option>
+                                <option value="Family">Family ({counts.Family} Available)</option>
+                                <option value="Suite">Suite ({counts.Suite} Available)</option>
                             </select>
                         </div>
                         <div className="form-group">
@@ -152,11 +157,9 @@ export function CompanyProfile() {
                     <div style={{ position: 'absolute', top: 0, right: 0, width: '150px', height: '150px', background: 'radial-gradient(circle, rgba(56,189,248,0.1) 0%, rgba(255,255,255,0) 70%)', transform: 'translate(30%, -30%)' }}></div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '24px', marginBottom: '32px' }}>
-                        <div style={{ width: '80px', height: '80px', borderRadius: '20px', background: 'linear-gradient(135deg, var(--primary), var(--accent))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '36px', color: 'var(--admin-sidebar-text)', boxShadow: '0 8px 20px rgba(8, 145, 178, 0.3)' }}>
-                            O
-                        </div>
+                        <img src={logoImage} alt="Ocean View Resort Logo" style={{ height: '80px', objectFit: 'contain' }} />
                         <div>
-                            <h2 style={{ margin: '0 0 4px 0', fontSize: '24px', color: 'var(--admin-text-main)' }}>Ocean View Resort & Spa</h2>
+                            <h2 style={{ margin: '0 0 4px 0', fontSize: '24px', color: 'var(--admin-text-main)' }}>Ocean View Resorts</h2>
                             <span style={{ display: 'inline-block', padding: '4px 12px', borderRadius: '100px', backgroundColor: '#dcfce7', color: '#166534', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Verified Enterprise</span>
                         </div>
                     </div>

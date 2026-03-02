@@ -1,57 +1,34 @@
-<div align="center">
+# Ocean View Resort Management System
 
-<img src="https://img.icons8.com/clouds/200/beach-front.png" alt="Logo" width="120" />
+This is my final assignment project for the resort management system. The system has two main parts: a web frontend for guests to book rooms and a Java backend/desktop app for the management to control everything.
 
-# 🌊 Ocean View Resort
-### **Next-Gen Room Reservation & Management System**
+## Features
 
-[![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen?style=flat-square)](#)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-blue.svg?style=flat-square)](https://github.com/chamathdew/Ocean_View_Resort-/pulls)
+- Guest web portal using React
+- Java Desktop App for managing bookings, rooms, and guests
+- Spring Boot API connecting the frontend and database
+- Used MongoDB for the database
 
-**A premium web experience for hospitality management, built with the power of MERN.**
+## Technologies Used
 
-[✨ Key Features](#-key-features) • [🛠 Tech Stack](#-tech-stack) • [🚀 Quick Start](#-quick-start) • [📂 Structure](#-project-structure)
+- Frontend: React, Vite, HTML/CSS
+- Backend: Java, Spring Boot
+- Database: MongoDB Atlas
+- Tools: VS Code, IntelliJ/Eclipse, Postman
 
-</div>
+## How to run
 
----
+1. **Frontend:**
+   Go to the `frontend` folder and run `npm install`, then `npm run dev`.
 
-## 📖 Introduction
-**Ocean View Resort** is a full-stack web application designed to streamline hotel operations. It bridges the gap between luxury guest experiences and efficient administrative management, featuring a high-performance frontend and a scalable backend.
+2. **Backend:**
+   Open the `java_backend` folder in your IDE, download maven dependencies and run the Spring Boot main class. Or you can use the `run_gui.bat` file if maven is already set up.
 
----
+## Project Structure
 
-## ✨ Key Features
-
-- **🏨 Smart Room Discovery** – Filter and browse rooms with high-resolution imagery and real-time availability.
-- **⚡ Lightning Fast UI** – Minimalistic design with zero-lag navigation using **Vite**.
-- **🛠 Admin Dashboard** – Full CRUD (Create, Read, Update, Delete) capabilities for room inventories.
-- **📱 Device Agnostic** – Seamlessly transitions from mobile screens to 4K monitors.
-- **☁️ Cloud Integrated** – MongoDB Atlas integration for persistent and secure data storage.
-
----
-
-## 🛠 Tech Stack
-
-| **Frontend** | **Backend** | **Database & Ops** |
-| :--- | :--- | :--- |
-| <img src="https://skillicons.dev/icons?i=react,vite,tailwind" /> | <img src="https://skillicons.dev/icons?i=nodejs,express" /> | <img src="https://skillicons.dev/icons?i=mongodb,postman,git" /> |
-| **React 18 & Vite** | **Node.js & Express** | **MongoDB Atlas** |
+- `frontend/` - Contains all React code for the guest UI
+- `java_backend/` - Contains the Java Spring Boot code and Swing UI components
 
 ---
 
-## 📂 Project Structure
-
-```text
-Ocean_View_Resort/
-├── 📁 client/                # Frontend Source
-│   ├── 📁 src/
-│   │   ├── 📁 components/    # Atomic UI components
-│   │   ├── 📁 pages/         # Full page views
-│   │   └── 📁 services/      # Axios / Fetch API Logic
-├── 📁 server/                # Backend Source
-│   ├── 📁 models/            # Mongoose Schemas
-│   ├── 📁 controllers/       # Route Logic
-│   └── index.js              # Server Entry
-└── 📄 README.md              # Project Documentation
+_Note: Make sure MongoDB connection URI is set in application.properties before running the backend._

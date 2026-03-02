@@ -35,7 +35,7 @@ export default function RoomDetails() {
                         <div style={{ display: 'flex', gap: 24, fontSize: 16 }}>
                             <span>✦ {room.capacity}</span>
                             <span>✦ Ocean View</span>
-                            <span>✦ LKR {room.price.toLocaleString()} / Night</span>
+                            <span>✦ LKR {room.price.toLocaleString()} / per Night</span>
                         </div>
                     </div>
                 </div>

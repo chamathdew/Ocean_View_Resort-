@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { downloadInvoice } from "../utils/invoice";
 
-const API = `http://${window.location.hostname}:5000`;
+const API = `http://${window.location.hostname}:8080`;
 
 export default function ReservationList() {
   const [reservationNo, setReservationNo] = useState("");
