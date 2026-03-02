@@ -32,7 +32,8 @@ def extract_id_data(image_bytes, mime_type):
         "idNumber": "ID card or Passport number",
         "dateOfBirth": "Date of birth in YYYY-MM-DD format",
         "gender": "Male, Female, or Other",
-        "contactNumber": "Phone number if visible, otherwise empty string"
+        "contactNumber": "Phone number if visible, otherwise empty string",
+        "email": "Email address if visible, otherwise empty string"
     }
     If information is not visible, use an empty string. Do not include markdown ticks.
     """

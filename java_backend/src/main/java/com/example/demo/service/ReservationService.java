@@ -26,13 +26,21 @@ public class ReservationService {
     @Autowired
     private BillingStrategy billingStrategy;
 
+    @Autowired
+    private EmailService emailService;
+
     public Reservation addReservation(ReservationRequest req) {
         if (req.getGuestDetails() != null) {
             com.example.demo.model.Guest savedGuest = guestRepository.save(req.getGuestDetails());
             req.setGuestId(savedGuest.getId());
         }
         Reservation newReservation = reservationFactory.createReservation(req);
-        return reservationRepository.save(newReservation);
+        Reservation saved = reservationRepository.save(newReservation);
+
+        // Send async email confirmation
+        new Thread(() -> emailService.sendBookingConfirmation(saved)).start();
+
+        return saved;
     }
 
     public Optional<Reservation> getReservationDetails(String id) {

@@ -19,4 +19,5 @@ public class Guest {
     private String idNumber;
     private String dateOfBirth;
     private String gender;
+    private String email;
 }

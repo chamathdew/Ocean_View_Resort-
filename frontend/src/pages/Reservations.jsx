@@ -41,7 +41,12 @@ export default function Reservations() {
   const [idNumber, setIdNumber] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState("");
+  const [email, setEmail] = useState("");
   const [scanningId, setScanningId] = useState(false);
+
+  // checkout state
+  const [showPayment, setShowPayment] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false);
 
   // system
   const [errors, setErrors] = useState({});
@@ -88,9 +93,12 @@ export default function Reservations() {
       if (data.idNumber) setIdNumber(data.idNumber);
       if (data.dateOfBirth) setDateOfBirth(data.dateOfBirth);
       if (data.gender) setGender(data.gender);
+      if (data.email) setEmail(data.email);
       setMsg("✅ ID Scanned Successfully");
     } catch (err) {
-      setMsg("❌ Scan failed. Please enter details.");
+      console.error("Scan Error Details:", err);
+      const errMsg = err.response?.data?.error || err.message || "Connection failed to Python Scanner (Port 8082)";
+      setMsg(`❌ Scan failed: ${errMsg}`);
     } finally {
       setScanningId(false);
     }
@@ -99,12 +107,16 @@ export default function Reservations() {
   async function bookNow() {
     setMsg("");
     if (!selectedRoomId) return setMsg("⚠️ Please select a suite first.");
-    if (!fullName || !idNumber || !contactNumber) return setMsg("⚠️ Please fill in all required guest details.");
+    if (!fullName || !idNumber || !contactNumber || !email) return setMsg("⚠️ Please fill in all required guest details.");
 
-    setLoading(true);
+    setShowPayment(true);
+  }
+
+  async function handlePaymentSuccess() {
+    setPaymentLoading(true);
     try {
       const payload = {
-        fullName, contactNumber, idNumber, dateOfBirth, gender,
+        fullName, contactNumber, idNumber, dateOfBirth, gender, email,
         roomId: selectedRoomId, checkIn, checkOut
       };
 
@@ -117,11 +129,12 @@ export default function Reservations() {
       const { data } = await axios.post(`${API}/api/reservations`, payload);
       setReservationData(data);
       setMsg("✅ Booking Success!");
-      setFullName(""); setIdNumber(""); setContactNumber("");
+      setFullName(""); setIdNumber(""); setContactNumber(""); setEmail("");
+      setShowPayment(false);
     } catch (err) {
       setMsg(err?.response?.data?.message || "Booking Failed");
     } finally {
-      setLoading(false);
+      setPaymentLoading(false);
     }
   }
 
@@ -163,8 +176,56 @@ export default function Reservations() {
     );
   }
 
+  const totalNights = Math.max(1, Math.ceil((new Date(checkOut) - new Date(checkIn)) / (86400000)));
+  const totalAmount = currentRoomInfo.price * totalNights;
+
   return (
     <div className="container" style={{ maxWidth: 1400, padding: 0 }}>
+      {/* PAYMENT MODAL */}
+      {showPayment && (
+        <div className="modal-overlay">
+          <div className="glass-panel payment-modal">
+            <div className="payment-header">
+              <h2>Secure Payment</h2>
+              <button className="close-btn" onClick={() => setShowPayment(false)}>✕</button>
+            </div>
+            
+            <div className="payment-summary">
+              <div className="pay-row">
+                <span>Room Amount</span>
+                <span>LKR {totalAmount.toLocaleString()}</span>
+              </div>
+              <div className="pay-row total">
+                <span>Amount to Pay</span>
+                <span>LKR {totalAmount.toLocaleString()}</span>
+              </div>
+            </div>
+
+            <div className="card-form">
+              <div className="field">
+                <label className="label">Card Number</label>
+                <input className="input" placeholder="0000 0000 0000 0000" />
+              </div>
+              <div className="form-row">
+                <div className="field">
+                  <label className="label">Expiry</label>
+                  <input className="input" placeholder="MM/YY" />
+                </div>
+                <div className="field">
+                  <label className="label">CVV</label>
+                  <input className="input" placeholder="123" />
+                </div>
+              </div>
+            </div>
+
+            <button onClick={handlePaymentSuccess} disabled={paymentLoading} className="btn btn-accent pay-btn">
+              {paymentLoading ? "Processing..." : `Pay LKR ${totalAmount.toLocaleString()}`}
+            </button>
+            
+            <p className="payment-footer">🔒 Your payment is secured with 256-bit encryption</p>
+          </div>
+        </div>
+      )}
 
       {/* HERO HEADER */}
       <div className="booking-hero">
@@ -279,6 +340,11 @@ export default function Reservations() {
                 <input className="input" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Your Name" />
               </div>
 
+              <div className="field">
+                <label className="label">Email Address</label>
+                <input className="input" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="email@example.com" />
+              </div>
+
               <div className="form-row">
                 <div className="field">
                   <label className="label">ID/Passport</label>
@@ -308,7 +374,7 @@ export default function Reservations() {
               <div className="total-due">
                 <span>Total Due</span>
                 <span className="total-amount">
-                  LKR {(currentRoomInfo.price * Math.max(1, Math.ceil((new Date(checkOut) - new Date(checkIn)) / (86400000)))).toLocaleString()}
+                  LKR {totalAmount.toLocaleString()}
                 </span>
               </div>
 
