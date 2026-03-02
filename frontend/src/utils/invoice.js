@@ -1,91 +1,165 @@
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
+import { ROOM_DATA } from "./roomData";
 
 export const downloadInvoice = (reservation) => {
     try {
-        const doc = new jsPDF();
+        const doc = new jsPDF({
+            orientation: "portrait",
+            unit: "mm",
+            format: "a4"
+        });
+        
         const { reservationNo, checkIn, checkOut, guestId, roomId } = reservation;
+        
+        // Add Accent Background header
+        doc.setFillColor(15, 23, 42); // Very dark blue/slate
+        doc.rect(0, 0, 210, 40, "F");
+        
+        // Add subtle accent rectangle
+        doc.setFillColor(14, 165, 233); // Sky blue
+        doc.rect(0, 40, 210, 2, "F");
 
-        // Header
-        doc.setFontSize(22);
-        doc.setTextColor(15, 23, 42); // --primary
-        doc.text("OCEAN VIEW RESORT", 105, 30, { align: "center" });
-
-        doc.setFontSize(10);
-        doc.setTextColor(100, 116, 139); // --text-light
-        doc.text("Galle Road, South Coast, Sri Lanka", 105, 38, { align: "center" });
-        doc.text("+94 11 234 5678 | stay@oceanviewresort.com", 105, 43, { align: "center" });
-
-        // Divider
-        doc.setLineWidth(0.5);
-        doc.setDrawColor(226, 232, 240); // --border
-        doc.line(20, 50, 190, 50);
-
-        // Invoice Details
-        doc.setFontSize(14);
-        doc.setTextColor(15, 23, 42);
-        doc.text("OFFICIAL INVOICE", 20, 65);
-
-        doc.setFontSize(10);
-        doc.setTextColor(100, 116, 139);
-        doc.text(`Invoice No: ${reservationNo}`, 140, 65);
-        doc.text(`Date: ${new Date().toLocaleDateString()}`, 140, 70);
-
-        // Guest & Stay Info - Using modular autoTable
-        autoTable(doc, {
-            startY: 80,
-            head: [["Guest Details", "Stay Information"]],
-            body: [
-                [
-                    `Name: ${guestId?.fullName || "N/A"}\nContact: ${guestId?.contactNumber || "N/A"}\nAddress: ${guestId?.address || "N/A"}`,
-                    `Suite: ${roomId?.roomNumber} (${roomId?.roomType})\nCheck-in: ${new Date(checkIn).toLocaleDateString()}\nCheck-out: ${new Date(checkOut).toLocaleDateString()}`
-                ]
-            ],
-            theme: "striped",
-            headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255] },
-            styles: { overflow: "linebreak", cellPadding: 8 }
-        });
-
-        // Fees
-        const price = roomId?.roomType === "Suite" ? 42000 : 28000; // This logic might need to fetch real price if available, but currently hardcoded fallback or roomData usage is better.
-        // Wait, price logic in previous file was: const price = roomId?.roomType === "Suite" ? 42000 : 28000;
-        // In Reservatons.jsx we use currentRoomInfo.price which comes from ROOM_DATA.
-        // It's safer to use a passed price or calculation.
-        // But for invoice generation, we rely on roomType. I'll stick to logic or try to improve.
-        // Actually, importing ROOM_DATA might be better.
-
-        const nights = Math.ceil((new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24)) || 1;
-        const total = price * nights;
-
-        autoTable(doc, {
-            startY: doc.lastAutoTable.finalY + 10,
-            head: [["Description", "Rate", "Nights", "Total"]],
-            body: [
-                [`${roomId?.roomType} Suite Accommodation`, `LKR ${price.toLocaleString()}`, nights, `LKR ${total.toLocaleString()}`]
-            ],
-            theme: "grid",
-            headStyles: { fillColor: [212, 175, 55], textColor: [15, 23, 42] },
-            styles: { cellPadding: 8 }
-        });
-
-        // Totals
-        const finalY = doc.lastAutoTable.finalY + 15;
-        doc.setFontSize(12);
-        doc.setTextColor(15, 23, 42);
+        // Header Text - White
+        doc.setFontSize(26);
+        doc.setTextColor(255, 255, 255);
         doc.setFont("helvetica", "bold");
-        doc.text(`GRAND TOTAL: LKR ${total.toLocaleString()}`, 190, finalY, { align: "right" });
+        doc.text("OCEAN VIEW", 20, 25);
+        doc.setFont("helvetica", "normal");
+        doc.text("RESORTS", 85, 25);
+        
+        // Header Right - Contact
+        doc.setFontSize(10);
+        doc.text("Galle Road, South Coast, Sri Lanka", 190, 20, { align: "right" });
+        doc.text("+94 11 234 5678", 190, 26, { align: "right" });
+        doc.text("stay@oceanviewresort.com", 190, 32, { align: "right" });
 
-        // Footer Note
-        doc.setFontSize(9);
+        // Invoice Titling
+        doc.setTextColor(15, 23, 42);
+        doc.setFontSize(28);
+        doc.setFont("helvetica", "bold");
+        doc.text("INVOICE", 20, 65);
+        
+        // Invoice Details right aligned
+        doc.setFontSize(10);
         doc.setFont("helvetica", "normal");
         doc.setTextColor(100, 116, 139);
-        doc.text("Thank you for choosing Ocean View Resort. We look forward to your arrival.", 105, 270, { align: "center" });
+        doc.text("Invoice Number", 190, 60, { align: "right" });
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(15, 23, 42);
+        doc.text(`${reservationNo}`, 190, 65, { align: "right" });
+        
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(100, 116, 139);
+        doc.text("Date of Issue", 190, 75, { align: "right" });
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(15, 23, 42);
+        doc.text(`${new Date().toLocaleDateString()}`, 190, 80, { align: "right" });
 
-        // Download
-        doc.save(`Invoice_${reservationNo}.pdf`);
+        // Bill to section
+        doc.setFillColor(248, 250, 252);
+        doc.rect(20, 95, 80, 45, "F");
+        doc.setFontSize(11);
+        doc.setTextColor(100, 116, 139);
+        doc.setFont("helvetica", "bold");
+        doc.text("BILLED TO:", 25, 105);
+        
+        doc.setFontSize(11);
+        doc.setTextColor(15, 23, 42);
+        doc.text(`${guestId?.fullName || "Valued Guest"}`, 25, 115);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(100, 116, 139);
+        doc.text(`Contact: ${guestId?.contactNumber || "N/A"}`, 25, 122);
+        doc.text(`ID/Passport: ${guestId?.idNumber || "N/A"}`, 25, 129);
+
+        // Stay details section
+        doc.setFillColor(248, 250, 252);
+        doc.rect(110, 95, 80, 45, "F");
+        doc.setFontSize(11);
+        doc.setTextColor(100, 116, 139);
+        doc.setFont("helvetica", "bold");
+        doc.text("STAY DETAILS:", 115, 105);
+        
+        doc.setFontSize(11);
+        doc.setTextColor(15, 23, 42);
+        doc.text(`Suite ${roomId?.roomNumber || ""} • ${roomId?.roomType || ""}`, 115, 115);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(100, 116, 139);
+        doc.text(`Check In: ${new Date(checkIn).toLocaleDateString()}`, 115, 122);
+        doc.text(`Check Out: ${new Date(checkOut).toLocaleDateString()}`, 115, 129);
+
+        // Get proper price from data
+        const roomTypeKey = roomId?.roomType && ROOM_DATA[roomId.roomType] ? roomId.roomType : "Single";
+        const pricePerNight = ROOM_DATA[roomTypeKey].price;
+        const diffTime = Math.abs(new Date(checkOut) - new Date(checkIn));
+        const nights = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
+        const total = pricePerNight * nights;
+
+        // Table
+        autoTable(doc, {
+            startY: 155,
+            head: [["DESCRIPTION", "NIGHTS", "PRICE / NIGHT", "TOTAL"]],
+            body: [
+                [`${ROOM_DATA[roomTypeKey].name} Accommodation`, nights, `LKR ${pricePerNight.toLocaleString()}`, `LKR ${total.toLocaleString()}`]
+            ],
+            theme: "plain",
+            headStyles: { 
+                fillColor: [241, 245, 249], 
+                textColor: [100, 116, 139],
+                fontStyle: 'bold',
+                halign: 'left',
+                cellPadding: 6
+            },
+            bodyStyles: {
+                textColor: [15, 23, 42],
+                fontSize: 11,
+                cellPadding: 8
+            },
+            alternateRowStyles: {
+                fillColor: [255, 255, 255]
+            },
+            columnStyles: {
+                1: { halign: 'center' },
+                2: { halign: 'right' },
+                3: { halign: 'right', fontStyle: 'bold' }
+            },
+        });
+
+        // Totals Box
+        const finalY = doc.lastAutoTable.finalY + 15;
+        
+        doc.setDrawColor(226, 232, 240);
+        doc.line(120, finalY, 190, finalY);
+
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(100, 116, 139);
+        doc.text("Subtotal:", 140, finalY + 8);
+        doc.setTextColor(15, 23, 42);
+        doc.text(`LKR ${total.toLocaleString()}`, 190, finalY + 8, { align: "right" });
+
+        doc.line(120, finalY + 12, 190, finalY + 12);
+
+        // Grand total highlight
+        doc.setFillColor(14, 165, 233); // Primary Blue
+        doc.rect(120, finalY + 18, 70, 12, "F");
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(255, 255, 255);
+        doc.text("GRAND TOTAL", 125, finalY + 26);
+        doc.text(`LKR ${total.toLocaleString()}`, 185, finalY + 26, { align: "right" });
+
+        // Footer Note
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "italic");
+        doc.setTextColor(148, 163, 184);
+        doc.text("Thank you for your business. We look forward to welcoming you.", 105, 280, { align: "center" });
+
+        // Save
+        doc.save(`OceanView_Invoice_${reservationNo}.pdf`);
 
     } catch (err) {
         console.error("PDF Generation Error:", err);
-        alert("Failed to generate PDF. Check console for details.\nError: " + err.message);
+        alert("Failed to generate PDF. Check console for details.");
     }
 };
