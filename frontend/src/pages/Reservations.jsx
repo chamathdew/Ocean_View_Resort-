@@ -236,16 +236,18 @@ export default function Reservations() {
               </div>
             )}
 
-            {availableRooms.map(room => (
-              <div key={room._id} onClick={() => setSelectedRoomId(room._id)}
-                className={`booking-room-card glass-panel ${selectedRoomId === room._id ? 'selected' : ''}`}>
+            {availableRooms.map(room => {
+              const rId = room.id || room._id;
+              return (
+              <div key={rId} onClick={() => setSelectedRoomId(rId)}
+                className={`booking-room-card glass-panel ${selectedRoomId === rId ? 'selected' : ''}`}>
                 <div className="room-card-img">
                   <img src={currentRoomInfo.images[0]} alt="" />
                 </div>
                 <div className="room-card-details">
                   <div className="room-card-header">
                     <h4>Suite {room.roomNumber}</h4>
-                    {selectedRoomId === room._id && <span className="selected-tag">SELECTED</span>}
+                    {selectedRoomId === rId && <span className="selected-tag">SELECTED</span>}
                   </div>
                   <p className="room-card-features">Ocean Facing • 2nd Floor • King Bed</p>
                   <div className="room-card-price">
@@ -254,7 +256,7 @@ export default function Reservations() {
                   </div>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         </div>
 

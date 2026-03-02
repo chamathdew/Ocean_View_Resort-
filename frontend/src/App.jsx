@@ -32,6 +32,7 @@ function Home() {
   const [suiteType, setSuiteType] = useState("Double");
   const navigate = useNavigate();
 
+  const handleCheckAvailability = () => {
     if (!checkIn || !checkOut) {
       alert("Please select both Check-in and Check-out dates.");
       return;
