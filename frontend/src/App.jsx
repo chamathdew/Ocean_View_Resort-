@@ -29,14 +29,14 @@ function Home() {
   const [attractions, setAttractions] = useState([]);
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
+  const [suiteType, setSuiteType] = useState("Double");
   const navigate = useNavigate();
 
-  const handleCheckAvailability = () => {
     if (!checkIn || !checkOut) {
       alert("Please select both Check-in and Check-out dates.");
       return;
     }
-    navigate(`/book?checkIn=${checkIn}&checkOut=${checkOut}`);
+    navigate(`/book?checkIn=${checkIn}&checkOut=${checkOut}&type=${suiteType}`);
   };
 
   useEffect(() => {
@@ -87,7 +87,7 @@ function Home() {
 
               <div className="field">
                 <div className="label">Preferred Suite</div>
-                <select defaultValue="Double" onChange={(e) => {}}>
+                <select value={suiteType} onChange={(e) => setSuiteType(e.target.value)}>
                   <option value="Single">Single ({counts.Single} Available)</option>
                   <option value="Double">Double ({counts.Double} Available)</option>
                   <option value="Family">Family ({counts.Family} Available)</option>

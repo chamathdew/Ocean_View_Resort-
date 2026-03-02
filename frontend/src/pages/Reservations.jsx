@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { downloadInvoice } from "../utils/invoice";
 import { ROOM_DATA } from "../utils/roomData";
@@ -6,10 +7,13 @@ import { ROOM_DATA } from "../utils/roomData";
 const API = `http://${window.location.hostname}:8080`;
 
 export default function Reservations() {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+
   // --- STATE ---
-  const [roomType, setRoomType] = useState("Double");
-  const [checkIn, setCheckIn] = useState("2026-03-01");
-  const [checkOut, setCheckOut] = useState("2026-03-05");
+  const [roomType, setRoomType] = useState(queryParams.get("type") || "Double");
+  const [checkIn, setCheckIn] = useState(queryParams.get("checkIn") || "2026-03-01");
+  const [checkOut, setCheckOut] = useState(queryParams.get("checkOut") || "2026-03-05");
   const [availableRooms, setAvailableRooms] = useState([]);
   const [selectedRoomId, setSelectedRoomId] = useState("");
   const [counts, setCounts] = useState({ Single: 0, Double: 0, Family: 0, Suite: 0 });
@@ -22,7 +26,13 @@ export default function Reservations() {
         if (r.status === 'active') c[r.roomType] = (c[r.roomType] || 0) + 1;
       });
       setCounts(c);
+      
+      // Auto-trigger search if navigated with dates
+      if (queryParams.get("checkIn") && queryParams.get("checkOut")) {
+        setAvailableRooms(data.filter(r => r.roomType === (queryParams.get("type") || "Double") && r.status === 'active'));
+      }
     }).catch(console.error);
+    // eslint-disable-next-line
   }, []);
 
   // guest form
@@ -48,10 +58,8 @@ export default function Reservations() {
     try {
       // Small delay for UI smoothness
       await new Promise(r => setTimeout(r, 300));
-      const { data } = await axios.get(`${API}/api/reservations/available`, {
-        params: { roomType, checkIn, checkOut },
-      });
-      setAvailableRooms(data);
+      const { data } = await axios.get(`${API}/api/rooms`);
+      setAvailableRooms(data.filter(r => r.roomType === roomType && r.status === 'active'));
     } catch (err) {
       console.error(err);
     } finally {
