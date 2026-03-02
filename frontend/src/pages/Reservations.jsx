@@ -80,7 +80,7 @@ export default function Reservations() {
     try {
       const formData = new FormData();
       formData.append('idImage', file);
-      const { data } = await axios.post(`${API}/api/scan-id`, formData, {
+      const { data } = await axios.post(`http://localhost:8082/api/scan-id`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       if (data.fullName) setFullName(data.fullName);
