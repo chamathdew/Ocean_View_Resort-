@@ -1,0 +1,124 @@
+import React, { useState } from "react";
+import axios from "axios";
+import { Link } from "react-router-dom";
+
+const API = import.meta.env.DEV ? "http://localhost:8080" : "";
+
+export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const { data } = await axios.post(`${API}/api/auth/login`, {
+        email,
+        password,
+      });
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      if (data.user.role === "admin") {
+        window.location.href = "/admin";
+      } else {
+        window.location.href = "/";
+      }
+    } catch (err) {
+      console.log("login error:", err);
+      setError("Wrong email or password.");
+    }
+  };
+
+  return (
+    <div
+      className="container"
+      style={{ maxWidth: 500, paddingTop: 100, paddingBottom: 100 }}
+    >
+      <div
+        style={{
+          background: "var(--card)",
+          padding: 48,
+          borderRadius: 32,
+          boxShadow: "var(--shadow-lg)",
+          border: "1px solid var(--border)",
+        }}
+      >
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
+          <h2 style={{ fontSize: 32, marginBottom: 8 }}>Welcome</h2>
+          <p style={{ color: "var(--text-light)", margin: 0 }}>
+            Login to system
+          </p>
+        </div>
+
+        <form
+          onSubmit={handleLogin}
+          style={{ display: "flex", flexDirection: "column", gap: 24 }}
+        >
+          <div className="field">
+            <div className="label">Email Address</div>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="name@example.com"
+            />
+          </div>
+          <div className="field">
+            <div className="label">Password</div>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              placeholder="••••••••"
+            />
+          </div>
+
+          {error && (
+            <p
+              style={{
+                color: "#b91c1c",
+                fontSize: 13,
+                textAlign: "center",
+                margin: 0,
+                fontWeight: 500,
+              }}
+            >
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            className="btn btn-primary"
+            style={{ width: "100%", height: 52 }}
+          >
+            Sign In to Account
+          </button>
+        </form>
+
+        <div
+          style={{
+            marginTop: 32,
+            textAlign: "center",
+            fontSize: 14,
+            color: "var(--text-light)",
+          }}
+        >
+          Don't have an account?{" "}
+          <Link
+            to="/register"
+            style={{
+              color: "var(--accent)",
+              fontWeight: 700,
+              textDecoration: "none",
+            }}
+          >
+            Register Here
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}

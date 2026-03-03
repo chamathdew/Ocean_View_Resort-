@@ -1,0 +1,4 @@
+/* Global resets are now handled in App.css which implements the new Design System */
+:root {
+  /* Minimal reset or integration if needed */
+}
