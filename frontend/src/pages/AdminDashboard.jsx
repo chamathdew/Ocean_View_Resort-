@@ -3,13 +3,23 @@ import axios from "axios";
 import { downloadInvoice } from "../utils/invoice";
 import { useNavigate } from "react-router-dom";
 import { RoomManager, BookingRegistry, GuestSearch, CompanyProfile, SupportDesk } from "./AdminDashboardComponents";
+<<<<<<< HEAD
 import logoImage from "../assets/logo2.png";
 
 const API = import.meta.env.DEV ? "http://localhost:8080" : "";
+=======
+import logoImage from "../assets/logo.png";
+
+const API = `http://${window.location.hostname}:8080`;
+>>>>>>> origin/main
 
 export default function AdminDashboard() {
     const [reservations, setReservations] = useState([]);
     const [loading, setLoading] = useState(true);
+<<<<<<< HEAD
+=======
+    const [msg, setMsg] = useState("");
+>>>>>>> origin/main
     const [activeTab, setActiveTab] = useState("reservations");
     const [user, setUser] = useState(null);
     const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
@@ -45,13 +55,21 @@ export default function AdminDashboard() {
                 return;
             }
 
+<<<<<<< HEAD
             const { data } = await axios.get(`${API}/api/reservations`, {
+=======
+            const { data } = await axios.get(`${API}/api/reservations/`, {
+>>>>>>> origin/main
                 headers: { Authorization: `Bearer ${token}` }
             });
             setReservations(data);
         } catch (err) {
             console.error("Fetch error:", err);
+<<<<<<< HEAD
             alert("Failed to load reservations.");
+=======
+            setMsg("Failed to load reservations.");
+>>>>>>> origin/main
         } finally {
             setLoading(false);
         }
@@ -87,6 +105,10 @@ export default function AdminDashboard() {
 
     // Calculate stats
     const totalBookings = reservations.length;
+<<<<<<< HEAD
+=======
+    const recentBookings = reservations.slice(0, 5); // Just simplified logic for UI
+>>>>>>> origin/main
 
     return (
         <div className="admin-layout">
@@ -97,8 +119,13 @@ export default function AdminDashboard() {
                 <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
                     <img src={logoImage} alt="Logo" style={{ height: '60px', objectFit: 'contain' }} />
                     <div style={{ textAlign: 'center' }}>
+<<<<<<< HEAD
                         
                         <div style={{ fontSize: '10px', color: 'var(--admin-text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>Management System</div>
+=======
+                        <div style={{ fontSize: '16px', fontWeight: 800, letterSpacing: '0.5px' }}>Ocean View Resorts</div>
+                        <div style={{ fontSize: '10px', color: 'var(--admin-text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>Management v2.0</div>
+>>>>>>> origin/main
                     </div>
                 </div>
 
@@ -131,7 +158,11 @@ export default function AdminDashboard() {
                                 borderLeft: activeTab === 'transport' ? '4px solid var(--primary)' : '4px solid transparent'
                             }}
                         >
+<<<<<<< HEAD
                             <span style={{ fontSize: '18px' }}>🚗</span> Vehicles
+=======
+                            <span style={{ fontSize: '18px' }}>🚗</span> Transport
+>>>>>>> origin/main
                         </button>
                         <button
                             onClick={() => { setActiveTab('attractions'); setIsMobileMenuOpen(false); }}
@@ -207,7 +238,11 @@ export default function AdminDashboard() {
                         <button className="mobile-toggle-btn" onClick={() => setIsMobileMenuOpen(true)}>☰</button>
                         <div style={{ fontSize: '18px', fontWeight: 600, color: 'var(--admin-text-main)' }}>
                             {activeTab === 'reservations' ? 'Dashboard Overview' :
+<<<<<<< HEAD
                                 activeTab === 'transport' ? 'Vehicle Management' :
+=======
+                                activeTab === 'transport' ? 'Transport Management' :
+>>>>>>> origin/main
                                     activeTab === 'attractions' ? 'Nearby Attractions' :
                                         activeTab === 'inventory' ? 'Room Inventory Management' :
                                             activeTab === 'all-bookings' ? 'Extended Booking Registry' :
@@ -288,7 +323,11 @@ export default function AdminDashboard() {
                                             </thead>
                                             <tbody>
                                                 {reservations.map((res, index) => (
+<<<<<<< HEAD
                                                     <tr key={res.id} style={{ borderBottom: '1px solid var(--admin-border)', backgroundColor: index % 2 === 0 ? 'var(--admin-card-bg)' : 'var(--admin-hover)', transition: 'background 0.2s' }}>
+=======
+                                                    <tr key={res._id} style={{ borderBottom: '1px solid var(--admin-border)', backgroundColor: index % 2 === 0 ? 'var(--admin-card-bg)' : 'var(--admin-hover)', transition: 'background 0.2s' }}>
+>>>>>>> origin/main
                                                         <td style={{ padding: '16px', fontWeight: 700, color: 'var(--admin-text-main)' }}>#{res.reservationNo}</td>
                                                         <td style={{ padding: '16px', fontSize: '14px', color: 'var(--admin-text-muted)' }}>{res.guestId?.fullName || "N/A"}</td>
                                                         <td style={{ padding: '16px', fontSize: '14px', color: 'var(--admin-text-muted)' }}>
@@ -310,7 +349,11 @@ export default function AdminDashboard() {
                                                         <td style={{ padding: '16px' }}>
                                                             <div style={{ display: 'flex', justifyContent: 'center' }}>
                                                                 <button
+<<<<<<< HEAD
                                                                     onClick={() => togglePaymentStatus(res.id, res.isPaid)}
+=======
+                                                                    onClick={() => togglePaymentStatus(res._id, res.isPaid)}
+>>>>>>> origin/main
                                                                     style={{
                                                                         padding: '6px 12px', borderRadius: '8px', border: '1px solid',
                                                                         background: res.isPaid ? "rgba(34, 197, 94, 0.1)" : "rgba(239, 68, 68, 0.1)",
@@ -327,7 +370,11 @@ export default function AdminDashboard() {
                                                         <td style={{ padding: '16px' }}>
                                                             <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                                                                 <button onClick={() => downloadInvoice(res)} title="Download Invoice" style={{ padding: '8px', borderRadius: '6px', border: '1px solid var(--admin-border)', backgroundColor: 'var(--admin-card-bg)', cursor: 'pointer' }}>📄</button>
+<<<<<<< HEAD
                                                                 <button onClick={() => deleteReservation(res.id)} title="Delete Reservation" style={{ padding: '8px', borderRadius: '6px', border: '1px solid #fee2e2', backgroundColor: '#fef2f2', color: '#ef4444', cursor: 'pointer' }}>🗑</button>
+=======
+                                                                <button onClick={() => deleteReservation(res._id)} title="Delete Reservation" style={{ padding: '8px', borderRadius: '6px', border: '1px solid #fee2e2', backgroundColor: '#fef2f2', color: '#ef4444', cursor: 'pointer' }}>🗑</button>
+>>>>>>> origin/main
                                                             </div>
                                                         </td>
                                                     </tr>
@@ -361,15 +408,26 @@ function TransportManager() {
     const [form, setForm] = useState({ name: "", image: "", price: "", location: "" });
     const [editingId, setEditingId] = useState(null);
 
+<<<<<<< HEAD
     async function fetchTransports() {
         const { data } = await axios.get(`${API}/api/transports`);
         setTransports(data.map(t => ({ ...t, id: t.id || t._id })));
     }
 
+=======
+>>>>>>> origin/main
     useEffect(() => {
         fetchTransports();
     }, []);
 
+<<<<<<< HEAD
+=======
+    async function fetchTransports() {
+        const { data } = await axios.get(`${API}/api/transports`);
+        setTransports(data);
+    }
+
+>>>>>>> origin/main
     async function handleSubmit(e) {
         e.preventDefault();
         try {
@@ -398,13 +456,21 @@ function TransportManager() {
 
     function handleEdit(item) {
         setForm(item);
+<<<<<<< HEAD
         setEditingId(item.id);
+=======
+        setEditingId(item._id);
+>>>>>>> origin/main
     }
 
     return (
         <div>
             <div style={{ marginBottom: '32px' }}>
+<<<<<<< HEAD
                 <h2 style={{ fontSize: '28px', margin: 0, color: 'var(--admin-text-main)' }}>Vehicle Fleet</h2>
+=======
+                <h2 style={{ fontSize: '28px', margin: 0, color: 'var(--admin-text-main)' }}>Transport Fleet</h2>
+>>>>>>> origin/main
                 <p style={{ color: 'var(--admin-text-muted)', margin: '4px 0 0 0' }}>Add or modify vehicle options for guest rentals.</p>
             </div>
 
@@ -422,10 +488,23 @@ function TransportManager() {
                             <input className="input" placeholder="https://images.unsplash.com/..." value={form.image || form.icon} onChange={e => setForm({ ...form, image: e.target.value })} required style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--admin-border)' }} />
                             <small style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '4px', display: 'block' }}>Paste a direct image link for best results.</small>
                         </div>
+<<<<<<< HEAD
                             <div className="form-group">
                                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: 600, color: 'var(--admin-text-muted)' }}>Rate (Per Day)</label>
                                 <input className="input" placeholder="e.g. 5,000 LKR" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} required style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--admin-border)' }} />
                             </div>
+=======
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                            <div className="form-group">
+                                <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: 600, color: 'var(--admin-text-muted)' }}>Rate (Per Trip)</label>
+                                <input className="input" placeholder="e.g. 5,000 LKR" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} required style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--admin-border)' }} />
+                            </div>
+                            <div className="form-group">
+                                <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: 600, color: 'var(--admin-text-muted)' }}>Main Destination</label>
+                                <input className="input" placeholder="e.g. Airport" value={form.location || form.desc} onChange={e => setForm({ ...form, location: e.target.value })} required style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--admin-border)' }} />
+                            </div>
+                        </div>
+>>>>>>> origin/main
                         <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
                             <button type="submit" className="btn btn-primary" style={{ flex: 2, padding: '14px', borderRadius: '10px', fontWeight: 700 }}>{editingId ? "Save Changes" : "Register Vehicle"}</button>
                             {editingId && <button type="button" onClick={() => { setEditingId(null); setForm({ name: "", image: "", price: "", location: "" }); }} className="btn ghost" style={{ flex: 1 }}>Cancel</button>}
@@ -445,12 +524,20 @@ function TransportManager() {
                                     <tr>
                                         <th style={{ padding: '16px', textAlign: 'left', fontSize: '12px', textTransform: 'uppercase', color: 'var(--admin-text-muted)' }}>Vehicle</th>
                                         <th style={{ padding: '16px', textAlign: 'left', fontSize: '12px', textTransform: 'uppercase', color: 'var(--admin-text-muted)' }}>Price</th>
+<<<<<<< HEAD
+=======
+                                        <th style={{ padding: '16px', textAlign: 'left', fontSize: '12px', textTransform: 'uppercase', color: 'var(--admin-text-muted)' }}>Location</th>
+>>>>>>> origin/main
                                         <th style={{ padding: '16px', textAlign: 'center', fontSize: '12px', textTransform: 'uppercase', color: 'var(--admin-text-muted)' }}>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {transports.map(t => (
+<<<<<<< HEAD
                                         <tr key={t.id} style={{ borderBottom: '1px solid var(--admin-border)' }}>
+=======
+                                        <tr key={t._id} style={{ borderBottom: '1px solid var(--admin-border)' }}>
+>>>>>>> origin/main
                                             <td style={{ padding: '16px' }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                                     <img src={t.image || t.icon} alt={t.name} style={{ width: '44px', height: '44px', borderRadius: '8px', objectFit: 'cover' }} />
@@ -458,10 +545,18 @@ function TransportManager() {
                                                 </div>
                                             </td>
                                             <td style={{ padding: '16px', color: 'var(--admin-text-muted)', fontSize: '14px' }}>{t.price}</td>
+<<<<<<< HEAD
                                             <td style={{ padding: '16px' }}>
                                                 <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
                                                     <button onClick={() => handleEdit(t)} style={{ padding: '8px', borderRadius: '6px', border: '1px solid var(--admin-border)', backgroundColor: 'var(--admin-card-bg)', cursor: 'pointer' }}>✎</button>
                                                     <button onClick={() => handleDelete(t.id || t._id)} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #fee2e2', backgroundColor: '#fef2f2', color: '#ef4444', cursor: 'pointer' }}>🗑</button>
+=======
+                                            <td style={{ padding: '16px', color: 'var(--admin-text-muted)', fontSize: '14px' }}>{t.location || t.desc}</td>
+                                            <td style={{ padding: '16px' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
+                                                    <button onClick={() => handleEdit(t)} style={{ padding: '8px', borderRadius: '6px', border: '1px solid var(--admin-border)', backgroundColor: 'var(--admin-card-bg)', cursor: 'pointer' }}>✎</button>
+                                                    <button onClick={() => handleDelete(t._id)} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #fee2e2', backgroundColor: '#fef2f2', color: '#ef4444', cursor: 'pointer' }}>🗑</button>
+>>>>>>> origin/main
                                                 </div>
                                             </td>
                                         </tr>
@@ -481,15 +576,26 @@ function AttractionManager() {
     const [form, setForm] = useState({ name: "", img: "", desc: "" });
     const [editingId, setEditingId] = useState(null);
 
+<<<<<<< HEAD
     async function fetchAttractions() {
         const { data } = await axios.get(`${API}/api/attractions`);
         setAttractions(data.map(a => ({ ...a, id: a.id || a._id })));
     }
 
+=======
+>>>>>>> origin/main
     useEffect(() => {
         fetchAttractions();
     }, []);
 
+<<<<<<< HEAD
+=======
+    async function fetchAttractions() {
+        const { data } = await axios.get(`${API}/api/attractions`);
+        setAttractions(data);
+    }
+
+>>>>>>> origin/main
     async function handleSubmit(e) {
         e.preventDefault();
         try {
@@ -522,7 +628,11 @@ function AttractionManager() {
             img: item.img,
             desc: item.desc
         });
+<<<<<<< HEAD
         setEditingId(item.id);
+=======
+        setEditingId(item._id);
+>>>>>>> origin/main
     }
 
     return (
@@ -564,14 +674,22 @@ function AttractionManager() {
                     <div style={{ maxHeight: '600px', overflowY: 'auto', padding: '24px' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             {attractions.map(a => (
+<<<<<<< HEAD
                                 <div key={a.id} style={{ display: 'flex', gap: '20px', padding: '16px', borderRadius: '12px', backgroundColor: 'var(--admin-bg)', border: '1px solid var(--admin-border)' }}>
+=======
+                                <div key={a._id} style={{ display: 'flex', gap: '20px', padding: '16px', borderRadius: '12px', backgroundColor: 'var(--admin-bg)', border: '1px solid var(--admin-border)' }}>
+>>>>>>> origin/main
                                     <img src={a.img} alt={a.name} style={{ width: '80px', height: '80px', borderRadius: '10px', objectFit: 'cover' }} />
                                     <div style={{ flex: 1, minWidth: 0 }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                             <h4 style={{ margin: 0, fontSize: '16px', color: 'var(--admin-text-main)' }}>{a.name}</h4>
                                             <div style={{ display: 'flex', gap: '6px' }}>
                                                 <button onClick={() => handleEdit(a)} style={{ border: 'none', background: 'none', fontSize: '14px', cursor: 'pointer', opacity: 0.6 }}>✎</button>
+<<<<<<< HEAD
                                                 <button onClick={() => handleDelete(a.id || a._id)} style={{ border: 'none', background: 'none', fontSize: '14px', cursor: 'pointer', opacity: 0.6, color: '#ef4444' }}>🗑</button>
+=======
+                                                <button onClick={() => handleDelete(a._id)} style={{ border: 'none', background: 'none', fontSize: '14px', cursor: 'pointer', opacity: 0.6, color: '#ef4444' }}>🗑</button>
+>>>>>>> origin/main
                                             </div>
                                         </div>
                                         <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: 'var(--admin-text-muted)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{a.desc}</p>

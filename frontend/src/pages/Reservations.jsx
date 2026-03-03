@@ -4,7 +4,11 @@ import axios from "axios";
 import { downloadInvoice } from "../utils/invoice";
 import { ROOM_DATA } from "../utils/roomData";
 
+<<<<<<< HEAD
 const API = import.meta.env.DEV ? "http://localhost:8080" : "";
+=======
+const API = `http://${window.location.hostname}:8080`;
+>>>>>>> origin/main
 
 export default function Reservations() {
   const location = useLocation();
@@ -49,6 +53,10 @@ export default function Reservations() {
   const [paymentLoading, setPaymentLoading] = useState(false);
 
   // system
+<<<<<<< HEAD
+=======
+  const [errors, setErrors] = useState({});
+>>>>>>> origin/main
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
   const [reservationData, setReservationData] = useState(null);
@@ -115,12 +123,17 @@ export default function Reservations() {
     setPaymentLoading(true);
     try {
       const payload = {
+<<<<<<< HEAD
         guestDetails: {
           fullName, contactNumber, idNumber, dateOfBirth, gender, email
         },
         roomId: selectedRoomId, 
         checkIn, 
         checkOut
+=======
+        fullName, contactNumber, idNumber, dateOfBirth, gender, email,
+        roomId: selectedRoomId, checkIn, checkOut
+>>>>>>> origin/main
       };
 
       if (!localStorage.getItem("user")) {

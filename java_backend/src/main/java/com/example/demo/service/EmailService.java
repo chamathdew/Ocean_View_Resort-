@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.model.Reservation;
+<<<<<<< HEAD
 import com.example.demo.repository.GuestRepository;
 import com.example.demo.repository.RoomRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,16 @@ import jakarta.mail.internet.MimeMessage;
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+=======
+import com.example.demo.model.Guest;
+import com.example.demo.model.Room;
+import com.example.demo.repository.GuestRepository;
+import com.example.demo.repository.RoomRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.stereotype.Service;
+>>>>>>> origin/main
 
 @Service
 public class EmailService {
@@ -29,6 +40,7 @@ public class EmailService {
             if (guest.getEmail() == null || guest.getEmail().isEmpty())
                 return;
 
+<<<<<<< HEAD
             roomRepository.findById(reservation.getRoomId()).ifPresent(room -> {
                 try {
                     MimeMessage message = mailSender.createMimeMessage();
@@ -166,6 +178,27 @@ public class EmailService {
                 System.out.println("Cancellation email sent to: " + guest.getEmail());
             } catch (Exception e) {
                 System.err.println("Failed to send cancellation email: " + e.getMessage());
+=======
+            String roomNo = roomRepository.findById(reservation.getRoomId())
+                    .map(Room::getRoomNumber).orElse("N/A");
+
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(guest.getEmail());
+            message.setSubject("Booking Confirmed - Ocean View Resort");
+            message.setText("Dear " + guest.getFullName() + ",\n\n" +
+                    "Your booking at Ocean View Resort has been confirmed!\n\n" +
+                    "Reservation No: " + reservation.getReservationNo() + "\n" +
+                    "Room Number: " + roomNo + "\n" +
+                    "Check-in: " + reservation.getCheckIn() + "\n" +
+                    "Check-out: " + reservation.getCheckOut() + "\n\n" +
+                    "Thank you for choosing us!");
+
+            try {
+                mailSender.send(message);
+                System.out.println("Confirmation email sent to: " + guest.getEmail());
+            } catch (Exception e) {
+                System.err.println("Failed to send email: " + e.getMessage());
+>>>>>>> origin/main
             }
         });
     }

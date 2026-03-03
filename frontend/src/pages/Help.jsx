@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 
 export default function Help() {
+<<<<<<< HEAD
+=======
+    const [activeTab, setActiveTab] = useState("faq");
+
+>>>>>>> origin/main
     const faqs = [
         {
             q: "What are the standard check-in and check-out times?",

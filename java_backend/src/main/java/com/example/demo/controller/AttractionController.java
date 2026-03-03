@@ -29,10 +29,13 @@ public class AttractionController {
         service.delete(id);
         return ResponseEntity.ok().build();
     }
+<<<<<<< HEAD
 
     @PutMapping("/{id}")
     public ResponseEntity<Attraction> update(@PathVariable String id, @RequestBody Attraction a) {
         a.setId(id);
         return ResponseEntity.ok(service.add(a));
     }
+=======
+>>>>>>> origin/main
 }
