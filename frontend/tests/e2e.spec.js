@@ -24,7 +24,7 @@ test.describe('Ocean View Resort E2E Testing', () => {
     await expect(page).toHaveURL(/.*\/book/);
 
     // Verify page content (Assuming Reservations page has a specific title or form)
-    await expect(page.locator('h2', { hasText: /Reservation/i })).toBeVisible();
+    await expect(page.locator('h1', { hasText: /Book Your Paradise/i })).toBeVisible();
   });
 
   test('should verify check availability button is present', async ({ page }) => {
