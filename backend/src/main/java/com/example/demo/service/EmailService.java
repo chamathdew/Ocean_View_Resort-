@@ -1,11 +1,12 @@
 package com.example.demo.service;
 
+import com.example.demo.model.Guest;
 import com.example.demo.model.Reservation;
+import com.example.demo.model.Room;
 import com.example.demo.repository.GuestRepository;
 import com.example.demo.repository.RoomRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -96,7 +97,7 @@ public class EmailService {
                 .format(amount).replace("LKR", "Rs. ");
     }
 
-    private String buildBookingHtml(com.example.demo.model.Guest guest, com.example.demo.model.Room room, Reservation res, long nights, String total) {
+    private String buildBookingHtml(Guest guest, Room room, Reservation res, long nights, String total) {
         return "<html><body style='font-family: Arial, sans-serif; color: #333; line-height: 1.6;'>" +
                 "<div style='max-width: 600px; margin: 20px auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;'>" +
                 "<div style='background: #0f172a; padding: 30px; text-align: center; color: white;'>" +
@@ -105,7 +106,7 @@ public class EmailService {
                 "<p>Dear " + guest.getFullName() + ",</p><p>Your booking is confirmed. Details below:</p>" +
                 "<div style='background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;'>" +
                 "Ref: <b>" + res.getReservationNo() + "</b><br>" +
-                "Dates: " + res.getCheckIn().toString().substring(0, 10) + " to " + res.getCheckOut().toString().substring(0, 10) + "<br>" +
+                "Dates: " + res.getCheckIn().toLocaleString().substring(0, 10) + " to " + res.getCheckOut().toLocaleString().substring(0, 10) + "<br>" +
                 "Suite: " + room.getRoomNumber() + " (" + room.getRoomType() + ")</div>" +
                 "<table style='width: 100%; border-collapse: collapse; margin-top: 20px;'>" +
                 "<tr style='border-bottom: 2px solid #e2e8f0;'><td><b>Description</b></td><td><b>Nights</b></td><td style='text-align: right;'><b>Total</b></td></tr>" +
@@ -115,7 +116,7 @@ public class EmailService {
                 "</div></div></body></html>";
     }
 
-    private String buildCancellationHtml(com.example.demo.model.Guest guest, Reservation res) {
+    private String buildCancellationHtml(Guest guest, Reservation res) {
         return "<html><body style='font-family: Arial, sans-serif; color: #333;'>" +
                 "<div style='max-width: 600px; margin: 20px auto; border: 1px solid #fee2e2; border-radius: 12px; overflow: hidden;'>" +
                 "<div style='background: #ef4444; padding: 30px; text-align: center; color: white;'>" +
