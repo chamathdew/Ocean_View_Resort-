@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { downloadInvoice } from "../utils/invoice";
 
-const API = import.meta.env.DEV ? "http://localhost:8080" : "";
+const API = import.meta.env.DEV ? `http://${window.location.hostname}:8080` : "";
 
 export default function ReservationList() {
   const [reservationNo, setReservationNo] = useState("");
@@ -13,30 +13,16 @@ export default function ReservationList() {
   const [updateData, setUpdateData] = useState({ checkIn: "", checkOut: "" });
   const user = JSON.parse(localStorage.getItem("user") || "null");
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const ref = params.get("ref");
-    if (ref) {
-      setReservationNo(ref);
-      search(ref);
-    }
-    
-    if (user && user.email) {
-      fetchHistory(user.email);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  async function fetchHistory(email) {
+  const fetchHistory = useCallback(async (email) => {
     try {
       const res = await axios.get(`${API}/api/reservations/by-email/${email}`);
       setHistory(res.data);
     } catch (err) {
       console.error("Failed to fetch history", err);
     }
-  }
+  }, []);
 
-  async function search(refToSearch = reservationNo) {
+  const search = useCallback(async (refToSearch = reservationNo) => {
     if (!refToSearch) return;
     setMsg("");
     setData(null);
@@ -56,7 +42,20 @@ export default function ReservationList() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [reservationNo]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    if (ref) {
+      setReservationNo(ref);
+      search(ref);
+    }
+    
+    if (user && user.email) {
+      fetchHistory(user.email);
+    }
+  }, [search, fetchHistory, user]);
 
   async function cancelBooking() {
     if (!data) return;

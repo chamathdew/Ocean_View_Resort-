@@ -22,12 +22,12 @@ This is my final assignment project for the resort management system. The system
    Go to the `frontend` folder and run `npm install`, then `npm run dev`.
 
 2. **Backend:**
-   Open the `java_backend` folder in your IDE, download maven dependencies and run the Spring Boot main class. Or you can use the `run_gui.bat` file if maven is already set up.
+   Open the `backend` folder in your IDE, download maven dependencies and run the Spring Boot main class. Or you can use the `run_gui.bat` file if maven is already set up.
 
 ## Project Structure
 
 - `frontend/` - Contains all React code for the guest UI
-- `java_backend/` - Contains the Java Spring Boot code and Swing UI components
+- `backend/` - Contains the Java Spring Boot code and Swing UI components
 
 ---
 

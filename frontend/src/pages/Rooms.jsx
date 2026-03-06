@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const API = import.meta.env.DEV ? "http://localhost:8080" : "";
+const API = import.meta.env.DEV ? `http://${window.location.hostname}:8080` : "";
 
 export default function Rooms() {
   const [rooms, setRooms] = useState([]);

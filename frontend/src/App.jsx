@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import "./App.css";
@@ -11,13 +11,14 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import About from "./pages/About";
 import Help from "./pages/Help";
+
 import RoomDetails from "./pages/RoomDetails";
 import AdminDashboard from "./pages/AdminDashboard";
 import { ROOM_DATA } from "./utils/roomData";
 import ScrollToTop from "./components/ScrollToTop";
 import logoImage from "./assets/logo1.png";
 
-const API = import.meta.env.DEV ? "http://localhost:8080" : "";
+const API = import.meta.env.DEV ? `http://${window.location.hostname}:8080` : "";
 
 function Home() {
   const [rooms, setRooms] = useState([]);
@@ -89,26 +90,27 @@ function Home() {
     navigate(`/book?checkIn=${checkIn}&checkOut=${checkOut}&type=${suiteType}`);
   };
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const [roomsRes, transportsRes, attractionsRes] = await Promise.all([
-          axios.get(`${API}/api/rooms`),
-          axios.get(`${API}/api/transports`),
-          axios.get(`${API}/api/attractions`)
-        ]);
+  const fetchData = useCallback(async () => {
+    try {
+      const [roomsRes, transportsRes, attractionsRes] = await Promise.all([
+        axios.get(`${API}/api/rooms`),
+        axios.get(`${API}/api/transports`),
+        axios.get(`${API}/api/attractions`)
+      ]);
 
-        setRooms(roomsRes.data);
-        setTransports(transportsRes.data);
-        setAttractions(attractionsRes.data);
-      } catch (err) {
-        console.error("Error fetching data:", err);
-      } finally {
-        setLoading(false);
-      }
+      setRooms(roomsRes.data);
+      setTransports(transportsRes.data);
+      setAttractions(attractionsRes.data);
+    } catch (err) {
+      console.error("Error fetching data:", err);
+    } finally {
+      setLoading(false);
     }
-    fetchData();
   }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const counts = { Single: 0, Double: 0, Family: 0, Suite: 0 };
   rooms.forEach(r => {
@@ -431,15 +433,19 @@ export default function App() {
               {isAdmin && <Link to="/admin" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>}
               {isAdmin && <Link to="/rooms" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Inventory</Link>}
               <Link to="/about" className="nav-link" onClick={() => setMobileMenuOpen(false)}>About Us</Link>
-              <Link to="/help" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Help Center</Link>
+
               {!isAdmin && <Link to="/book" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Book Room</Link>}
               <Link to="/search" className="nav-link" onClick={() => setMobileMenuOpen(false)}>My Booking</Link>
+              <Link to="/help" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Help & Support</Link>
               <div className="header-actions">
                 <button onClick={toggleTheme} className="ghost" style={{ padding: '8px 12px', marginRight: 15, fontSize: 18 }}>
                   {theme === 'light' ? '🌙' : '☀️'}
                 </button>
                 {user ? (
                   <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+                    <div style={{ padding: '4px 8px', borderRadius: '4px', background: 'rgba(16, 163, 74, 0.1)', color: '#16a34a', fontSize: '10px', fontWeight: 800, letterSpacing: '0.5px', border: '1px solid rgba(16, 163, 74, 0.2)' }}>
+                      SECURE SESSION ACTIVE
+                    </div>
                     <div style={{ textAlign: 'right' }}>
                       <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--primary)' }}>{user.name}</div>
                       <div style={{ fontSize: 11, textTransform: 'uppercase', color: 'var(--accent)' }}>{user.role} Member</div>
@@ -466,6 +472,7 @@ export default function App() {
         <Route path="/search" element={<ReservationList />} />
         <Route path="/about" element={<About />} />
         <Route path="/help" element={<Help />} />
+
         <Route path="/room/:type" element={<RoomDetails />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -488,7 +495,7 @@ export default function App() {
                 <h4>Quick Links</h4>
                 <ul className="footer-links">
                   <li><Link to="/about">Our Story</Link></li>
-                  <li><Link to="/help">Help & FAQ</Link></li>
+
                   <li><Link to="/rooms">All Suites</Link></li>
                   <li><Link to="/book">Reservations</Link></li>
                 </ul>

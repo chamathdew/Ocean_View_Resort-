@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
-const API = import.meta.env.DEV ? "http://localhost:8080" : "";
+const API = import.meta.env.DEV ? `http://${window.location.hostname}:8080` : "";
 
 export default function Login() {
   const [email, setEmail] = useState("");

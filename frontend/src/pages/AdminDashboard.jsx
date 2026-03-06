@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { downloadInvoice } from "../utils/invoice";
 import { useNavigate } from "react-router-dom";
-import { RoomManager, BookingRegistry, GuestSearch, CompanyProfile, SupportDesk } from "./AdminDashboardComponents";
+import { RoomManager, BookingRegistry, CompanyProfile, ReportsDashboard } from "./AdminDashboardComponents";
 import logoImage from "../assets/logo2.png";
 
-const API = import.meta.env.DEV ? "http://localhost:8080" : "";
+const API = import.meta.env.DEV ? `http://${window.location.hostname}:8080` : "";
 
 export default function AdminDashboard() {
     const [reservations, setReservations] = useState([]);
@@ -16,27 +16,7 @@ export default function AdminDashboard() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const savedUser = localStorage.getItem("user");
-        if (savedUser) setUser(JSON.parse(savedUser));
-        document.documentElement.setAttribute("data-theme", theme);
-        loadReservations();
-    }, [theme]);
-
-    const toggleTheme = () => {
-        const next = theme === "light" ? "dark" : "light";
-        setTheme(next);
-        localStorage.setItem("theme", next);
-    };
-
-    const logout = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        setUser(null);
-        navigate("/");
-    };
-
-    async function loadReservations() {
+    const loadReservations = useCallback(async () => {
         setLoading(true);
         try {
             const token = localStorage.getItem("token");
@@ -55,7 +35,30 @@ export default function AdminDashboard() {
         } finally {
             setLoading(false);
         }
-    }
+    }, []);
+
+    useEffect(() => {
+        const savedUser = localStorage.getItem("user");
+        if (savedUser) setUser(JSON.parse(savedUser));
+        document.documentElement.setAttribute("data-theme", theme);
+        (async () => {
+            await loadReservations();
+        })();
+    }, [theme, loadReservations]);
+
+    const toggleTheme = () => {
+        const next = theme === "light" ? "dark" : "light";
+        setTheme(next);
+        localStorage.setItem("theme", next);
+    };
+
+    const logout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setUser(null);
+        navigate("/");
+    };
+
 
     async function togglePaymentStatus(id, currentStatus) {
         try {
@@ -121,6 +124,19 @@ export default function AdminDashboard() {
                             <span style={{ fontSize: '18px' }}>📊</span> Dashboard
                         </button>
                         <button
+                            onClick={() => { setActiveTab('reports'); setIsMobileMenuOpen(false); }}
+                            style={{
+                                padding: '12px 16px', textAlign: 'left', border: 'none', borderRadius: '10px',
+                                fontWeight: 600, fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px',
+                                background: activeTab === 'reports' ? 'rgba(255,255,255,0.1)' : 'transparent',
+                                color: activeTab === 'reports' ? '#fff' : '#94a3b8',
+                                transition: 'all 0.2s',
+                                borderLeft: activeTab === 'reports' ? '4px solid var(--primary)' : '4px solid transparent'
+                            }}
+                        >
+                            <span style={{ fontSize: '18px' }}>📈</span> Business Reports
+                        </button>
+                        <button
                             onClick={() => { setActiveTab('transport'); setIsMobileMenuOpen(false); }}
                             style={{
                                 padding: '12px 16px', textAlign: 'left', border: 'none', borderRadius: '10px',
@@ -153,9 +169,7 @@ export default function AdminDashboard() {
                         {[
                             { id: 'inventory', label: 'Room Inventory', icon: '🏨' },
                             { id: 'all-bookings', label: 'Bookings', icon: '📝' },
-                            { id: 'search', label: 'Search Guests', icon: '🔍' },
-                            { id: 'company', label: 'Company Info', icon: 'ℹ️' },
-                            { id: 'support', label: 'Support Desk', icon: '❓' }
+                            { id: 'company', label: 'Company Info', icon: 'ℹ️' }
                         ].map(item => (
                             <button
                                 key={item.id}
@@ -207,12 +221,11 @@ export default function AdminDashboard() {
                         <button className="mobile-toggle-btn" onClick={() => setIsMobileMenuOpen(true)}>☰</button>
                         <div style={{ fontSize: '18px', fontWeight: 600, color: 'var(--admin-text-main)' }}>
                             {activeTab === 'reservations' ? 'Dashboard Overview' :
-                                activeTab === 'transport' ? 'Vehicle Management' :
-                                    activeTab === 'attractions' ? 'Nearby Attractions' :
-                                        activeTab === 'inventory' ? 'Room Inventory Management' :
-                                            activeTab === 'all-bookings' ? 'Extended Booking Registry' :
-                                                activeTab === 'search' ? 'Guest Directory' :
-                                                    activeTab === 'company' ? 'Company Profile' : 'Technical Support Desk'}
+                                activeTab === 'reports' ? 'Business Intelligence' :
+                                    activeTab === 'transport' ? 'Vehicle Management' :
+                                        activeTab === 'attractions' ? 'Nearby Attractions' :
+                                            activeTab === 'inventory' ? 'Room Inventory Management' :
+                                                activeTab === 'all-bookings' ? 'Extended Booking Registry' : 'Company Profile'}
                         </div>
                         <div style={{ padding: '4px 12px', borderRadius: '20px', backgroundColor: 'var(--admin-table-head)', fontSize: '12px', color: 'var(--admin-text-muted)' }} className="hide-on-mobile">
                             {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
@@ -342,13 +355,13 @@ export default function AdminDashboard() {
                         </div>
                     )}
 
+                    {activeTab === 'reports' && <div style={{ maxWidth: '1400px', margin: '0 auto' }}><ReportsDashboard /></div>}
                     {activeTab === 'transport' && <div style={{ maxWidth: '1400px', margin: '0 auto' }}><TransportManager /></div>}
                     {activeTab === 'attractions' && <div style={{ maxWidth: '1400px', margin: '0 auto' }}><AttractionManager /></div>}
                     {activeTab === 'inventory' && <div style={{ maxWidth: '1400px', margin: '0 auto' }}><RoomManager /></div>}
                     {activeTab === 'all-bookings' && <div style={{ maxWidth: '1400px', margin: '0 auto' }}><BookingRegistry reservations={reservations} /></div>}
-                    {activeTab === 'search' && <div style={{ maxWidth: '1400px', margin: '0 auto' }}><GuestSearch /></div>}
+                    {activeTab === 'search' && <div style={{ maxWidth: '1400px', margin: '0 auto' }}><div style={{textAlign:'center', padding: '100px'}}>Search module restricted.</div></div>}
                     {activeTab === 'company' && <div style={{ maxWidth: '1400px', margin: '0 auto' }}><CompanyProfile /></div>}
-                    {activeTab === 'support' && <div style={{ maxWidth: '1400px', margin: '0 auto' }}><SupportDesk /></div>}
                 </div>
             </main>
         </div>
@@ -360,15 +373,21 @@ function TransportManager() {
     const [transports, setTransports] = useState([]);
     const [form, setForm] = useState({ name: "", image: "", price: "", location: "" });
     const [editingId, setEditingId] = useState(null);
-
-    async function fetchTransports() {
-        const { data } = await axios.get(`${API}/api/transports`);
-        setTransports(data.map(t => ({ ...t, id: t.id || t._id })));
-    }
+    // Component-scope fetch so other handlers can call it
+    const fetchTransports = useCallback(async () => {
+        try {
+            const { data } = await axios.get(`${API}/api/transports`);
+            setTransports(data.map(t => ({ ...t, id: t.id || t._id })));
+        } catch (err) {
+            console.error("Error fetching transports:", err);
+        }
+    }, []);
 
     useEffect(() => {
-        fetchTransports();
-    }, []);
+        (async () => {
+            await fetchTransports();
+        })();
+    }, [fetchTransports]);
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -481,14 +500,21 @@ function AttractionManager() {
     const [form, setForm] = useState({ name: "", img: "", desc: "" });
     const [editingId, setEditingId] = useState(null);
 
-    async function fetchAttractions() {
-        const { data } = await axios.get(`${API}/api/attractions`);
-        setAttractions(data.map(a => ({ ...a, id: a.id || a._id })));
-    }
+    // Component-scope fetch so other handlers can call it
+    const fetchAttractions = useCallback(async () => {
+        try {
+            const { data } = await axios.get(`${API}/api/attractions`);
+            setAttractions(data.map(a => ({ ...a, id: a.id || a._id })));
+        } catch (err) {
+            console.error("Error fetching attractions:", err);
+        }
+    }, []);
 
     useEffect(() => {
-        fetchAttractions();
-    }, []);
+        (async () => {
+            await fetchAttractions();
+        })();
+    }, [fetchAttractions]);
 
     async function handleSubmit(e) {
         e.preventDefault();

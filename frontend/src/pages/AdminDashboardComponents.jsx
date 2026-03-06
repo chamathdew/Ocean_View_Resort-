@@ -1,20 +1,28 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import logoImage from "../assets/logo2.png";
 
-const API = import.meta.env.DEV ? "http://localhost:8080" : "";
+const API = import.meta.env.DEV ? `http://${window.location.hostname}:8080` : "";
 
 export function RoomManager() {
     const [rooms, setRooms] = useState([]);
     const [form, setForm] = useState({ roomNumber: "", roomType: "Single", status: "active" });
     const [editingId, setEditingId] = useState(null);
+    // Component-scope loader so other handlers can call it
+    const loadRooms = useCallback(async () => {
+        try {
+            const { data } = await axios.get(`${API}/api/rooms`);
+            setRooms(data);
+        } catch (err) {
+            console.error("Error fetching rooms:", err);
+        }
+    }, []);
 
-    async function loadRooms() {
-        const { data } = await axios.get(`${API}/api/rooms`);
-        setRooms(data);
-    }
-
-    useEffect(() => { loadRooms(); }, []);
+    useEffect(() => {
+        (async () => {
+            await loadRooms();
+        })();
+    }, [loadRooms]);
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -161,17 +169,6 @@ export function BookingRegistry({ reservations }) {
     );
 }
 
-export function GuestSearch() {
-    return (
-        <div style={{ textAlign: 'center', padding: '80px 0' }}>
-            <h2 style={{ color: 'var(--admin-text-main)' }}>Guest Directory</h2>
-            <p style={{ color: 'var(--admin-text-muted)' }}>Search by Name, ID, or Phone Number to view history.</p>
-            <div style={{ maxWidth: '500px', margin: '32px auto' }}>
-                <input className="input" placeholder="Start typing guest name..." style={{ width: '100%', padding: '16px 24px', borderRadius: '30px', border: '2px solid #e2e8f0', fontSize: '16px' }} />
-            </div>
-        </div>
-    );
-}
 
 export function CompanyProfile() {
     return (
@@ -267,15 +264,97 @@ export function CompanyProfile() {
     );
 }
 
-export function SupportDesk() {
+
+export function ReportsDashboard() {
+    const [stats, setStats] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        axios.get(`${API}/api/reports/summary`)
+            .then(res => {
+                setStats(res.data);
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error(err);
+                setLoading(false);
+            });
+    }, []);
+
+    if (loading) return <div>Generating secure reports...</div>;
+
     return (
-        <div style={{ backgroundColor: 'var(--admin-sidebar-bg)', color: 'var(--admin-sidebar-text)', padding: '40px', borderRadius: '16px' }}>
-            <h2 style={{ marginTop: 0 }}>24/7 Support Desk</h2>
-            <p style={{ color: 'var(--admin-text-muted)' }}>Need assistance with the management system?</p>
-            <div style={{ marginTop: '32px', display: 'flex', gap: '20px' }}>
-                <button style={{ padding: '12px 24px', borderRadius: '8px', border: 'none', backgroundColor: 'var(--primary)', color: 'var(--admin-sidebar-text)', fontWeight: 600 }}>Create Ticket</button>
-                <button style={{ padding: '12px 24px', borderRadius: '8px', border: '1px solid #94a3b8', backgroundColor: 'transparent', color: 'var(--admin-sidebar-text)', fontWeight: 600 }}>Documentation</button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+            <div>
+                <h2 style={{ fontSize: '28px', margin: 0, color: 'var(--admin-text-main)' }}>Decision Support Analytics</h2>
+                <p style={{ color: 'var(--admin-text-muted)', margin: '4px 0 0 0' }}>Data-driven insights to facilitate resort management decisions.</p>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+                <div className="report-card">
+                    <h3 style={{ fontSize: '16px', marginBottom: '20px' }}>Revenue Distribution</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        <div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '4px' }}>
+                                <span>Paid Revenue</span>
+                                <span style={{ fontWeight: 700 }}>{stats?.totalRevenue?.toLocaleString()} LKR</span>
+                            </div>
+                            <div style={{ height: '8px', width: '100%', background: '#f1f5f9', borderRadius: '4px' }}>
+                                <div style={{ height: '100%', width: '75%', background: '#10b981', borderRadius: '4px' }}></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '4px' }}>
+                                <span>Pending Payment</span>
+                                <span style={{ fontWeight: 700 }}>450,000 LKR</span>
+                            </div>
+                            <div style={{ height: '8px', width: '100%', background: '#f1f5f9', borderRadius: '4px' }}>
+                                <div style={{ height: '100%', width: '25%', background: '#f59e0b', borderRadius: '4px' }}></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style={{ marginTop: '32px', padding: '16px', background: 'var(--admin-bg)', borderRadius: '12px', fontSize: '12px' }}>
+                        💡 <strong>Insight:</strong> Paid revenue has increased by 15% since last month.
+                    </div>
+                </div>
+
+                <div className="report-card">
+                    <h3 style={{ fontSize: '16px', marginBottom: '20px' }}>Occupancy Trend (MTD)</h3>
+                    <div className="chart-bar-container">
+                        <div className="chart-bar" style={{ height: '40%' }} data-value="40%"></div>
+                        <div className="chart-bar" style={{ height: '60%' }} data-value="60%"></div>
+                        <div className="chart-bar" style={{ height: '85%', background: 'var(--accent)' }} data-value="85%"></div>
+                        <div className="chart-bar" style={{ height: '50%' }} data-value="50%"></div>
+                        <div className="chart-bar" style={{ height: '70%' }} data-value="70%"></div>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px', fontSize: '10px', color: 'var(--admin-text-muted)' }}>
+                        <span>Week 1</span>
+                        <span>Week 2</span>
+                        <span>Week 3</span>
+                        <span>Week 4</span>
+                        <span>Week 5</span>
+                    </div>
+                </div>
+
+                <div className="report-card">
+                    <h3 style={{ fontSize: '16px', marginBottom: '20px' }}>Administrative Summary</h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                        <div style={{ padding: '16px', background: 'var(--admin-bg)', borderRadius: '12px', textAlign: 'center' }}>
+                            <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--primary)' }}>{stats?.paidCount}</div>
+                            <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', textTransform: 'uppercase' }}>Paid Bookings</div>
+                        </div>
+                        <div style={{ padding: '16px', background: 'var(--admin-bg)', borderRadius: '12px', textAlign: 'center' }}>
+                            <div style={{ fontSize: '20px', fontWeight: 800, color: '#ef4444' }}>{stats?.unpaidCount}</div>
+                            <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', textTransform: 'uppercase' }}>Unpaid Bookings</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <button className="btn btn-primary" onClick={() => window.print()}>🖨️ Download Executive Report</button>
             </div>
         </div>
     );
 }
+

@@ -45,6 +45,49 @@
   --admin-footer-bg: #0f172a;
 }
 
+/* --- ANALYTICS DASHBOARD STYLES --- */
+.report-card {
+  background: var(--admin-card-bg);
+  padding: 24px;
+  border-radius: 20px;
+  border: 1px solid var(--admin-border);
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+  transition: transform 0.3s ease;
+}
+
+.report-card:hover {
+  transform: translateY(-5px);
+}
+
+.chart-bar-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  height: 200px;
+  padding-top: 20px;
+}
+
+.chart-bar {
+  flex: 1;
+  background: var(--primary);
+  border-radius: 8px 8px 0 0;
+  min-width: 30px;
+  position: relative;
+  transition: height 1s ease-out;
+}
+
+.chart-bar::after {
+  content: attr(data-value);
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--admin-text-main);
+}
+
+
 [data-theme='dark'] {
   /* DARK: Midnight Luxury */
   --primary: #38bdf8;

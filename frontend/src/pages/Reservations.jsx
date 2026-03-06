@@ -1,24 +1,30 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { downloadInvoice } from "../utils/invoice";
 import { ROOM_DATA } from "../utils/roomData";
 
-const API = import.meta.env.DEV ? "http://localhost:8080" : "";
+const API = import.meta.env.DEV ? `http://${window.location.hostname}:8080` : "";
 
 export default function Reservations() {
   const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
+  const queryParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
+
+  const todayTemp = new Date();
+  const todayDefault = todayTemp.getFullYear() + '-' + String(todayTemp.getMonth() + 1).padStart(2, '0') + '-' + String(todayTemp.getDate()).padStart(2, '0');
+  const tmrwTemp = new Date(todayTemp);
+  tmrwTemp.setDate(tmrwTemp.getDate() + 1);
+  const tmrwDefault = tmrwTemp.getFullYear() + '-' + String(tmrwTemp.getMonth() + 1).padStart(2, '0') + '-' + String(tmrwTemp.getDate()).padStart(2, '0');
 
   // --- STATE ---
   const [roomType, setRoomType] = useState(queryParams.get("type") || "Double");
-  const [checkIn, setCheckIn] = useState(queryParams.get("checkIn") || "2026-03-01");
-  const [checkOut, setCheckOut] = useState(queryParams.get("checkOut") || "2026-03-05");
+  const [checkIn, setCheckIn] = useState(queryParams.get("checkIn") || todayDefault);
+  const [checkOut, setCheckOut] = useState(queryParams.get("checkOut") || tmrwDefault);
   const [availableRooms, setAvailableRooms] = useState([]);
   const [selectedRoomId, setSelectedRoomId] = useState("");
   const [counts, setCounts] = useState({ Single: 0, Double: 0, Family: 0, Suite: 0 });
 
-  useEffect(() => {
+  const fetchAvailability = useCallback(() => {
     // Fetch all rooms to compute availability counts for the dropdown
     axios.get(`${API}/api/rooms`).then(({ data }) => {
       const c = { Single: 0, Double: 0, Family: 0, Suite: 0 };
@@ -27,13 +33,18 @@ export default function Reservations() {
       });
       setCounts(c);
       
+      const qCheckIn = queryParams.get("checkIn");
+      const qCheckOut = queryParams.get("checkOut");
       // Auto-trigger search if navigated with dates
-      if (queryParams.get("checkIn") && queryParams.get("checkOut")) {
+      if (qCheckIn && qCheckOut) {
         setAvailableRooms(data.filter(r => r.roomType === (queryParams.get("type") || "Double") && r.status === 'active'));
       }
     }).catch(console.error);
-    // eslint-disable-next-line
-  }, []);
+  }, [queryParams]);
+
+  useEffect(() => {
+    fetchAvailability();
+  }, [fetchAvailability]);
 
   // guest form
   const [fullName, setFullName] = useState("");
@@ -48,6 +59,7 @@ export default function Reservations() {
   const [showPayment, setShowPayment] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
 
+  const [errors, setErrors] = useState({});
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
   const [reservationData, setReservationData] = useState(null);
@@ -55,9 +67,24 @@ export default function Reservations() {
   const currentRoomInfo = ROOM_DATA[roomType] || ROOM_DATA.Double;
 
   // --- ACTIONS ---
-  async function checkAvailability() {
+  const checkAvailability = useCallback(async () => {
     setLoading(true);
     setReservationData(null);
+    setErrors({});
+    let newErrors = {};
+
+    const t = new Date();
+    const todayStr = t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0');
+
+    if (checkIn < todayStr) newErrors.checkIn = "Cannot pick a past date";
+    if (checkOut <= checkIn) newErrors.checkOut = "Must be after Check-In";
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      setLoading(false);
+      return;
+    }
+
     try {
       // Small delay for UI smoothness
       await new Promise(r => setTimeout(r, 300));
@@ -68,7 +95,7 @@ export default function Reservations() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [roomType]);
 
   // Handle Search Click
   const handleSearch = () => {
@@ -104,8 +131,35 @@ export default function Reservations() {
 
   async function bookNow() {
     setMsg("");
+    setErrors({});
+    let newErrors = {};
+
     if (!selectedRoomId) return setMsg("⚠️ Please select a suite first.");
-    if (!fullName || !idNumber || !contactNumber || !email) return setMsg("⚠️ Please fill in all required guest details.");
+
+    if (!fullName.trim()) newErrors.fullName = "Full Name is required";
+    if (!email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = "Invalid email format";
+    }
+    if (!idNumber.trim()) newErrors.idNumber = "ID/Passport is required";
+    if (!contactNumber.trim()) {
+      newErrors.contactNumber = "Contact is required";
+    } else if (!/^\+?[0-9\-\s]{9,15}$/.test(contactNumber)) {
+      newErrors.contactNumber = "Invalid phone format";
+    }
+
+    // Checking dates again just in case
+    const t = new Date();
+    const todayStr = t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0');
+    
+    if (checkIn < todayStr) newErrors.checkIn = "Cannot pick a past date";
+    if (checkOut <= checkIn) newErrors.checkOut = "Must be after Check-In";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return setMsg("⚠️ Please fix the errors highlighted in red.");
+    }
 
     setShowPayment(true);
   }
@@ -115,7 +169,13 @@ export default function Reservations() {
     try {
       const payload = {
         guestDetails: {
-          fullName, contactNumber, idNumber, dateOfBirth, gender, email
+          fullName, 
+          contactNumber, 
+          idNumber, 
+          dateOfBirth: dateOfBirth || "2000-01-01", 
+          gender: gender || "Not Specified", 
+          email,
+          address: "Ocean View Resort Guest" // Adding required default address
         },
         roomId: selectedRoomId, 
         checkIn, 
@@ -134,7 +194,20 @@ export default function Reservations() {
       setFullName(""); setIdNumber(""); setContactNumber(""); setEmail("");
       setShowPayment(false);
     } catch (err) {
-      setMsg(err?.response?.data?.message || "Booking Failed");
+      console.error(err.response?.data);
+      if (err.response?.data) {
+        if (typeof err.response.data === 'string') {
+          setMsg(err.response.data);
+        } else if (err.response.data.message) {
+          setMsg(err.response.data.message);
+        } else {
+          // It's likely the validation map from GlobalExceptionHandler
+          const errs = Object.values(err.response.data).join(", ");
+          setMsg(`⚠️ Validation Error: ${errs}`);
+        }
+      } else {
+        setMsg("❌ Booking Failed: Server unreachable");
+      }
     } finally {
       setPaymentLoading(false);
     }
@@ -242,16 +315,18 @@ export default function Reservations() {
           <div className="search-dates">
             <div className="search-field">
               <span className="search-icon">📅</span>
-              <div className="search-input-group">
-                <label>Check-in</label>
-                <input type="date" value={checkIn} onChange={e => setCheckIn(e.target.value)} />
+              <div className="search-input-group" style={{position: 'relative'}}>
+                <label style={{color: errors.checkIn ? '#ef4444' : ''}}>Check-in</label>
+                <input type="date" style={{borderColor: errors.checkIn ? '#ef4444' : ''}} value={checkIn} onChange={e => {setCheckIn(e.target.value); setErrors({...errors, checkIn: null})}} />
+                {errors.checkIn && <span style={{color: '#ef4444', fontSize: '11px', whiteSpace: 'nowrap', position: 'absolute', bottom: -18, left: 0}}>{errors.checkIn}</span>}
               </div>
             </div>
             <span className="search-divider">|</span>
             <div className="search-field">
-              <div className="search-input-group">
-                <label>Check-out</label>
-                <input type="date" value={checkOut} onChange={e => setCheckOut(e.target.value)} />
+              <div className="search-input-group" style={{position: 'relative'}}>
+                <label style={{color: errors.checkOut ? '#ef4444' : ''}}>Check-out</label>
+                <input type="date" style={{borderColor: errors.checkOut ? '#ef4444' : ''}} value={checkOut} onChange={e => {setCheckOut(e.target.value); setErrors({...errors, checkOut: null})}} />
+                {errors.checkOut && <span style={{color: '#ef4444', fontSize: '11px', whiteSpace: 'nowrap', position: 'absolute', bottom: -18, left: 0}}>{errors.checkOut}</span>}
               </div>
             </div>
           </div>
@@ -338,23 +413,27 @@ export default function Reservations() {
               </div>
 
               <div className="field">
-                <label className="label">Full Name</label>
-                <input className="input" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Your Name" />
+                <label className="label" style={{color: errors.fullName ? '#ef4444' : ''}}>Full Name</label>
+                <input className="input" style={{borderColor: errors.fullName ? '#ef4444' : ''}} value={fullName} onChange={e => {setFullName(e.target.value); setErrors({...errors, fullName: null})}} placeholder="Your Name" />
+                {errors.fullName && <span style={{color: '#ef4444', fontSize: '12px', marginTop: '4px', display: 'block'}}>{errors.fullName}</span>}
               </div>
 
               <div className="field">
-                <label className="label">Email Address</label>
-                <input className="input" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="email@example.com" />
+                <label className="label" style={{color: errors.email ? '#ef4444' : ''}}>Email Address</label>
+                <input className="input" type="email" style={{borderColor: errors.email ? '#ef4444' : ''}} value={email} onChange={e => {setEmail(e.target.value); setErrors({...errors, email: null})}} placeholder="email@example.com" />
+                {errors.email && <span style={{color: '#ef4444', fontSize: '12px', marginTop: '4px', display: 'block'}}>{errors.email}</span>}
               </div>
 
               <div className="form-row">
                 <div className="field">
-                  <label className="label">ID/Passport</label>
-                  <input className="input" value={idNumber} onChange={e => setIdNumber(e.target.value)} placeholder="ID Number" />
+                  <label className="label" style={{color: errors.idNumber ? '#ef4444' : ''}}>ID/Passport</label>
+                  <input className="input" style={{borderColor: errors.idNumber ? '#ef4444' : ''}} value={idNumber} onChange={e => {setIdNumber(e.target.value); setErrors({...errors, idNumber: null})}} placeholder="ID Number" />
+                  {errors.idNumber && <span style={{color: '#ef4444', fontSize: '12px', marginTop: '4px', display: 'block'}}>{errors.idNumber}</span>}
                 </div>
                 <div className="field">
-                  <label className="label">Contact</label>
-                  <input className="input" value={contactNumber} onChange={e => setContactNumber(e.target.value)} placeholder="Phone" />
+                  <label className="label" style={{color: errors.contactNumber ? '#ef4444' : ''}}>Contact</label>
+                  <input className="input" style={{borderColor: errors.contactNumber ? '#ef4444' : ''}} value={contactNumber} onChange={e => {setContactNumber(e.target.value); setErrors({...errors, contactNumber: null})}} placeholder="Phone" />
+                  {errors.contactNumber && <span style={{color: '#ef4444', fontSize: '12px', marginTop: '4px', display: 'block'}}>{errors.contactNumber}</span>}
                 </div>
               </div>
 

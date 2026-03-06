@@ -1,6 +1,0 @@
-@echo off
-echo Setting up Python Scanner...
-py -m pip install -r requirements.txt
-echo Starting Flask Server on port 8082...
-py app.py
-pause
