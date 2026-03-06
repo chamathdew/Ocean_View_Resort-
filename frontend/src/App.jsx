@@ -15,28 +15,18 @@ import RoomDetails from "./pages/RoomDetails";
 import AdminDashboard from "./pages/AdminDashboard";
 import { ROOM_DATA } from "./utils/roomData";
 import ScrollToTop from "./components/ScrollToTop";
-<<<<<<< HEAD
 import logoImage from "./assets/logo1.png";
 
 const API = import.meta.env.DEV ? "http://localhost:8080" : "";
-=======
-import logoImage from "./assets/logo.png";
-
-const API = `http://${window.location.hostname}:8080`;
->>>>>>> origin/main
 
 function Home() {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
-
-
-
   const [transports, setTransports] = useState([]);
   const [attractions, setAttractions] = useState([]);
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [suiteType, setSuiteType] = useState("Double");
-<<<<<<< HEAD
   const [showTransportModal, setShowTransportModal] = useState(false);
   const [selectedTransport, setSelectedTransport] = useState(null);
   const [selectedAttraction, setSelectedAttraction] = useState(null);
@@ -83,20 +73,14 @@ function Home() {
       return;
     }
 
-    // Prepare booking data to send to backend or show in success
-
     setTransportSuccess(true);
     setTimeout(() => {
       setShowTransportModal(false);
       setTransportForm({ location: "", startDate: "", endDate: "" });
       setTransportSuccess(false);
-    }, 4000); // Increased timeout to let user read the simulated bill
+    }, 4000); 
   };
 
-=======
-  const navigate = useNavigate();
-
->>>>>>> origin/main
   const handleCheckAvailability = () => {
     if (!checkIn || !checkOut) {
       alert("Please select both Check-in and Check-out dates.");
@@ -187,11 +171,7 @@ function Home() {
                 .map((room) => {
                   const info = ROOM_DATA[room.roomType] || ROOM_DATA.Double;
                   return (
-<<<<<<< HEAD
-                    <article className="room-card" key={room.id}>
-=======
-                    <article className="room-card" key={room._id}>
->>>>>>> origin/main
+                    <article className="room-card" key={room.id || room._id}>
                       <Link to={`/room/${room.roomType}`} style={{ textDecoration: 'none' }}>
                         <div className="room-img-wrap">
                           <img
@@ -242,13 +222,8 @@ function Home() {
         <div className="container">
           <div className="section-title">
             <span>Explore Freely</span>
-<<<<<<< HEAD
             <h2>Rent A Vehicle</h2>
             <p style={{ color: "var(--text-light)", marginTop: 10 }}>Choose your preferred vehicle to explore the coast.</p>
-=======
-            <h2>Rent A Ride</h2>
-            <p style={{ color: "var(--text-light)", marginTop: 10 }}>Choose your preferred mode of transport to explore the coast.</p>
->>>>>>> origin/main
           </div>
 
           <div className="transport-grid">
@@ -258,7 +233,6 @@ function Home() {
                   <img src={item.image || item.icon} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
                 <h3>{item.name}</h3>
-<<<<<<< HEAD
                 <div className="price-tag" style={{ marginTop: '10px' }}>{item.price} / day</div>
                 <button 
                   onClick={() => handleBookTransport(item)}
@@ -270,16 +244,6 @@ function Home() {
               </div>
             )) : (
               <p style={{ color: "var(--text-muted)" }}>No vehicle options available at the moment.</p>
-=======
-                <p style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-light)' }}>
-                  📍 {item.location || item.desc}
-                </p>
-                <div className="price-tag" style={{ marginTop: '10px' }}>{item.price} / trip</div>
-                <button className="btn btn-sm btn-accent" style={{ marginTop: 15, width: '100%' }}>Book Transport</button>
-              </div>
-            )) : (
-              <p style={{ color: "var(--text-muted)" }}>No transport options available at the moment.</p>
->>>>>>> origin/main
             )}
           </div>
         </div>
@@ -295,17 +259,12 @@ function Home() {
 
           <div className="attraction-grid">
             {attractions.length > 0 ? attractions.map((place, i) => (
-<<<<<<< HEAD
               <div key={i} className="attraction-card horizontal">
-=======
-              <div key={i} className="attraction-card">
->>>>>>> origin/main
                 <div className="attraction-img-wrap">
                   <img src={place.img} alt={place.name} loading="lazy" />
                 </div>
                 <div className="attraction-info">
                   <h3>{place.name}</h3>
-<<<<<<< HEAD
                   <p style={{ marginBottom: '16px' }}>
                     {place.desc.length > 200 ? place.desc.substring(0, 200) + '...' : place.desc}
                   </p>
@@ -316,9 +275,6 @@ function Home() {
                   >
                     View Details
                   </button>
-=======
-                  <p>{place.desc}</p>
->>>>>>> origin/main
                 </div>
               </div>
             )) : (
@@ -327,7 +283,6 @@ function Home() {
           </div>
         </div>
       </section>
-<<<<<<< HEAD
 
       {/* Transport Booking Modal */}
       {showTransportModal && (
@@ -419,21 +374,15 @@ function Home() {
           </div>
         </div>
       )}
-=======
->>>>>>> origin/main
     </>
   );
 }
 
 export default function App() {
-<<<<<<< HEAD
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("user");
     return savedUser ? JSON.parse(savedUser) : null;
   });
-=======
-  const [user, setUser] = useState(null);
->>>>>>> origin/main
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -441,12 +390,6 @@ export default function App() {
   const isAdminRoute = location.pathname.startsWith('/admin');
 
   useEffect(() => {
-<<<<<<< HEAD
-=======
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) setUser(JSON.parse(savedUser));
-
->>>>>>> origin/main
     // theme init
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
@@ -568,4 +511,3 @@ export default function App() {
     </div >
   );
 }
-

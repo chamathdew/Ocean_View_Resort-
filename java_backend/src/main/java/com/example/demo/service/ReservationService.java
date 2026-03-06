@@ -27,12 +27,9 @@ public class ReservationService {
     private BillingStrategy billingStrategy;
 
     @Autowired
-<<<<<<< HEAD
     private com.example.demo.repository.RoomRepository roomRepository;
 
     @Autowired
-=======
->>>>>>> origin/main
     private EmailService emailService;
 
     public Reservation addReservation(ReservationRequest req) {
@@ -43,15 +40,12 @@ public class ReservationService {
         Reservation newReservation = reservationFactory.createReservation(req);
         Reservation saved = reservationRepository.save(newReservation);
 
-<<<<<<< HEAD
         // Update room status to booked to update availability count
         roomRepository.findById(req.getRoomId()).ifPresent(room -> {
             room.setStatus("booked");
             roomRepository.save(room);
         });
 
-=======
->>>>>>> origin/main
         // Send async email confirmation
         new Thread(() -> emailService.sendBookingConfirmation(saved)).start();
 
@@ -62,7 +56,6 @@ public class ReservationService {
         return reservationRepository.findById(id);
     }
 
-<<<<<<< HEAD
     public Optional<Reservation> getByReservationNo(String resNo) {
         return reservationRepository.findByReservationNo(resNo);
     }
@@ -136,10 +129,6 @@ public class ReservationService {
             });
             reservationRepository.delete(res);
         });
-=======
-    public List<Reservation> getAllReservations() {
-        return reservationRepository.findAll();
->>>>>>> origin/main
     }
 
     public String printBill(String id) {
@@ -149,7 +138,6 @@ public class ReservationService {
         }
         return "Reservation not found.";
     }
-<<<<<<< HEAD
 
     public void updateReservation(String id, ReservationRequest req) {
         reservationRepository.findById(id).ifPresent(res -> {
@@ -160,6 +148,4 @@ public class ReservationService {
             reservationRepository.save(res);
         });
     }
-=======
->>>>>>> origin/main
 }

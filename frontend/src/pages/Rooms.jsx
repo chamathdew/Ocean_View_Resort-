@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-<<<<<<< HEAD
 const API = import.meta.env.DEV ? "http://localhost:8080" : "";
-=======
-const API = `http://${window.location.hostname}:8080`;
->>>>>>> origin/main
 
 export default function Rooms() {
   const [rooms, setRooms] = useState([]);
@@ -134,11 +130,7 @@ export default function Rooms() {
             {loading ? (
               <tr><td colSpan="4" style={{ padding: 60, textAlign: "center" }}>Refreshing database...</td></tr>
             ) : rooms.map((r) => (
-<<<<<<< HEAD
-              <tr key={r.id}>
-=======
-              <tr key={r._id}>
->>>>>>> origin/main
+              <tr key={r.id || r._id}>
                 <td style={{ fontWeight: 700, fontSize: 16 }}>{r.roomNumber}</td>
                 <td style={{ color: 'var(--text-light)' }}>{r.roomType} Suite</td>
                 <td>
@@ -146,37 +138,23 @@ export default function Rooms() {
                     padding: "6px 14px",
                     borderRadius: 100,
                     fontSize: 11,
-<<<<<<< HEAD
                     background: r.status === "active" ? "rgba(34, 197, 94, 0.15)" : 
                                 r.status === "booked" ? "rgba(234, 179, 8, 0.15)" : "rgba(239, 68, 68, 0.15)",
                     color: r.status === "active" ? "#4ade80" : 
                            r.status === "booked" ? "#facc15" : "#f87171",
                     border: `1px solid ${r.status === "active" ? "rgba(34, 197, 94, 0.3)" : 
                                           r.status === "booked" ? "rgba(234, 179, 8, 0.3)" : "rgba(239, 68, 68, 0.3)"}`,
-=======
-                    background: r.status === "active" ? "rgba(34, 197, 94, 0.15)" : "rgba(239, 68, 68, 0.15)",
-                    color: r.status === "active" ? "#4ade80" : "#f87171",
-                    border: `1px solid ${r.status === "active" ? "rgba(34, 197, 94, 0.3)" : "rgba(239, 68, 68, 0.3)"}`,
->>>>>>> origin/main
                     fontWeight: 800,
                     textTransform: 'uppercase',
                     letterSpacing: '1px'
                   }}>
-<<<<<<< HEAD
                     {r.status === 'active' ? '● Available' : 
                      r.status === 'booked' ? '○ Booked' : '○ Maintenance'}
-=======
-                    {r.status === 'active' ? '● Available' : '○ Maintenance'}
->>>>>>> origin/main
                   </span>
                 </td>
                 {isAdmin && (
                   <td style={{ textAlign: "right" }}>
-<<<<<<< HEAD
-                    <button onClick={() => deleteRoom(r.id)} className="ghost" style={{ padding: "6px 16px", color: "#b91c1c", borderColor: 'var(--border)', background: 'var(--card)' }}>
-=======
-                    <button onClick={() => deleteRoom(r._id)} className="ghost" style={{ padding: "6px 16px", color: "#b91c1c", borderColor: 'var(--border)', background: 'var(--card)' }}>
->>>>>>> origin/main
+                    <button onClick={() => deleteRoom(r.id || r._id)} className="ghost" style={{ padding: "6px 16px", color: "#b91c1c", borderColor: 'var(--border)', background: 'var(--card)' }}>
                       Remove
                     </button>
                   </td>

@@ -3,10 +3,6 @@ package com.example.demo.client.gui;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-<<<<<<< HEAD
-=======
-import java.awt.event.*;
->>>>>>> origin/main
 import java.net.URI;
 import java.net.http.*;
 import java.util.Vector;
@@ -16,11 +12,7 @@ import org.json.JSONObject;
 public class ManagementSystemGUI extends JFrame {
     private final String BASE_URL = "http://localhost:8080/api";
     private final HttpClient client = HttpClient.newHttpClient();
-<<<<<<< HEAD
     private JPanel cardPanel;
-=======
-    private JPanel mainPanel, cardPanel;
->>>>>>> origin/main
     private CardLayout cardLayout;
 
     public ManagementSystemGUI() {

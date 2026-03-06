@@ -34,10 +34,6 @@ public class AuthController {
         if (user != null) {
             java.util.Map<String, Object> response = new java.util.HashMap<>();
             response.put("user", user);
-<<<<<<< HEAD
-=======
-            // TODO: implement real JWT token later
->>>>>>> origin/main
             response.put("token", "dummy-jwt-token-for-assignment");
             return ResponseEntity.ok(response);
         }

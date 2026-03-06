@@ -29,13 +29,10 @@ public class TransportController {
         service.delete(id);
         return ResponseEntity.ok().build();
     }
-<<<<<<< HEAD
 
     @PutMapping("/{id}")
     public ResponseEntity<Transport> update(@PathVariable String id, @RequestBody Transport t) {
         t.setId(id);
         return ResponseEntity.ok(service.add(t));
     }
-=======
->>>>>>> origin/main
 }

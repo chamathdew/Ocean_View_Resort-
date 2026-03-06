@@ -1,28 +1,17 @@
-<<<<<<< HEAD
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { downloadInvoice } from "../utils/invoice";
 
 const API = import.meta.env.DEV ? "http://localhost:8080" : "";
-=======
-import { useState } from "react";
-import axios from "axios";
-import { downloadInvoice } from "../utils/invoice";
-
-const API = `http://${window.location.hostname}:8080`;
->>>>>>> origin/main
 
 export default function ReservationList() {
   const [reservationNo, setReservationNo] = useState("");
   const [data, setData] = useState(null);
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
-<<<<<<< HEAD
   const [history, setHistory] = useState([]);
   const [updateData, setUpdateData] = useState({ checkIn: "", checkOut: "" });
   const user = JSON.parse(localStorage.getItem("user") || "null");
-=======
->>>>>>> origin/main
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -31,7 +20,6 @@ export default function ReservationList() {
       setReservationNo(ref);
       search(ref);
     }
-<<<<<<< HEAD
     
     if (user && user.email) {
       fetchHistory(user.email);
@@ -48,10 +36,6 @@ export default function ReservationList() {
     }
   }
 
-=======
-  }, []);
-
->>>>>>> origin/main
   async function search(refToSearch = reservationNo) {
     if (!refToSearch) return;
     setMsg("");
@@ -59,7 +43,6 @@ export default function ReservationList() {
     setLoading(true);
 
     try {
-<<<<<<< HEAD
       const res = await axios.get(`${API}/api/reservations/by-ref/${refToSearch}`);
       setData(res.data);
       if (res.data) {
@@ -68,10 +51,6 @@ export default function ReservationList() {
               checkOut: res.data.checkOut ? res.data.checkOut.split('T')[0] : ''
           });
       }
-=======
-      const res = await axios.get(`${API}/api/reservations/${refToSearch}`);
-      setData(res.data);
->>>>>>> origin/main
     } catch (err) {
       setMsg(err?.response?.data?.message || "We couldn't find a reservation with that number. Please verify and try again.");
     } finally {
@@ -79,7 +58,6 @@ export default function ReservationList() {
     }
   }
 
-<<<<<<< HEAD
   async function cancelBooking() {
     if (!data) return;
     if (!window.confirm("Are you sure you want to cancel this reservation? This action cannot be undone.")) return;
@@ -120,8 +98,6 @@ export default function ReservationList() {
       }
   }
 
-=======
->>>>>>> origin/main
   return (
     <div className="container booking-list-container">
       <div className="section-title text-center mb-48">
@@ -172,7 +148,6 @@ export default function ReservationList() {
                 <span className="result-value">{new Date(data.checkOut).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
               </div>
 
-<<<<<<< HEAD
               <div className="concierge-box mt-20" style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                 <p>Need to make changes? You can update your dates below or contact our concierge desk at <br /> <strong className="primary-text">+94 11 234 5678</strong></p>
                 <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '15px' }}>
@@ -201,24 +176,18 @@ export default function ReservationList() {
                      {loading ? "Processing..." : "Cancel Reservation"}
                    </button>
                 </div>
-=======
-              <div className="concierge-box mt-20">
-                <p>Need to make changes? Please contact our concierge desk at <br /> <strong className="primary-text">+94 11 234 5678</strong></p>
->>>>>>> origin/main
               </div>
             </div>
           </div>
         )}
       </div>
-<<<<<<< HEAD
-
 
       {history.length > 0 && (
         <div className="mt-48">
           <h3 className="mb-24" style={{ textAlign: 'center', color: 'var(--text-main)' }}>Your Previous Bookings</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-24">
             {history.map(h => (
-              <div key={h.id} className="glass-panel p-24" style={{ cursor: 'pointer', transition: 'transform 0.2s', hover: { transform: 'translateY(-4px)' } }} onClick={() => { setReservationNo(h.reservationNo); search(h.reservationNo); window.scrollTo(0,0); }}>
+              <div key={h.id || h._id} className="glass-panel p-24" style={{ cursor: 'pointer', transition: 'transform 0.2s', hover: { transform: 'translateY(-4px)' } }} onClick={() => { setReservationNo(h.reservationNo); search(h.reservationNo); window.scrollTo(0,0); }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
                   <span style={{ fontWeight: 700, color: 'var(--primary)' }}>{h.reservationNo}</span>
                   <span className="status-badge" style={{ fontSize: '10px' }}>{h.status}</span>
@@ -232,8 +201,6 @@ export default function ReservationList() {
           </div>
         </div>
       )}
-=======
->>>>>>> origin/main
     </div>
   );
 }

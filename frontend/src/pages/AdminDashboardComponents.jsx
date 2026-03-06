@@ -1,35 +1,21 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-<<<<<<< HEAD
 import logoImage from "../assets/logo2.png";
 
 const API = import.meta.env.DEV ? "http://localhost:8080" : "";
-=======
-import logoImage from "../assets/logo.png";
-
-const API = `http://${window.location.hostname}:8080`;
->>>>>>> origin/main
 
 export function RoomManager() {
     const [rooms, setRooms] = useState([]);
     const [form, setForm] = useState({ roomNumber: "", roomType: "Single", status: "active" });
     const [editingId, setEditingId] = useState(null);
 
-<<<<<<< HEAD
-=======
-    useEffect(() => { loadRooms(); }, []);
-
->>>>>>> origin/main
     async function loadRooms() {
         const { data } = await axios.get(`${API}/api/rooms`);
         setRooms(data);
     }
 
-<<<<<<< HEAD
     useEffect(() => { loadRooms(); }, []);
 
-=======
->>>>>>> origin/main
     async function handleSubmit(e) {
         e.preventDefault();
         const token = localStorage.getItem("token");
@@ -101,28 +87,16 @@ export function RoomManager() {
                             </thead>
                             <tbody>
                                 {rooms.map(r => (
-<<<<<<< HEAD
-                                    <tr key={r.id} style={{ borderBottom: '1px solid var(--admin-border)' }}>
+                                    <tr key={r.id || r._id} style={{ borderBottom: '1px solid var(--admin-border)' }}>
                                         <td style={{ padding: '16px', fontWeight: 700 }}>{r.roomNumber}</td>
                                         <td style={{ padding: '16px' }}>{r.roomType}</td>
                                         <td style={{ padding: '16px' }}>
                                             <span style={{ fontSize: '11px', fontWeight: 700, padding: '4px 8px', borderRadius: '4px', background: r.status === 'active' ? '#dcfce7' : r.status === 'booked' ? '#fef9c3' : '#fee2e2', color: r.status === 'active' ? '#166534' : r.status === 'booked' ? '#854d0e' : '#991b1b' }}>
-=======
-                                    <tr key={r._id} style={{ borderBottom: '1px solid var(--admin-border)' }}>
-                                        <td style={{ padding: '16px', fontWeight: 700 }}>{r.roomNumber}</td>
-                                        <td style={{ padding: '16px' }}>{r.roomType}</td>
-                                        <td style={{ padding: '16px' }}>
-                                            <span style={{ fontSize: '11px', fontWeight: 700, padding: '4px 8px', borderRadius: '4px', background: r.status === 'active' ? '#dcfce7' : '#fee2e2', color: r.status === 'active' ? '#166534' : '#991b1b' }}>
->>>>>>> origin/main
                                                 {r.status.toUpperCase()}
                                             </span>
                                         </td>
                                         <td style={{ padding: '16px', textAlign: 'center' }}>
-<<<<<<< HEAD
-                                            <button onClick={() => { setForm(r); setEditingId(r.id); }} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>✎</button>
-=======
-                                            <button onClick={() => { setForm(r); setEditingId(r._id); }} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>✎</button>
->>>>>>> origin/main
+                                            <button onClick={() => { setForm(r); setEditingId(r.id || r._id); }} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>✎</button>
                                         </td>
                                     </tr>
                                 ))}
@@ -147,7 +121,6 @@ export function BookingRegistry({ reservations }) {
                 <div style={{ padding: '24px', borderBottom: '1px solid var(--admin-border)' }}>
                     <h3 style={{ margin: 0, fontSize: '18px' }}>All Records ({reservations.length})</h3>
                 </div>
-<<<<<<< HEAD
                 <div style={{ maxHeight: '700px', overflowY: 'auto' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                         <thead style={{ backgroundColor: 'var(--admin-bg)', position: 'sticky', top: 0 }}>
@@ -161,7 +134,7 @@ export function BookingRegistry({ reservations }) {
                         </thead>
                         <tbody>
                             {reservations.map(res => (
-                                <tr key={res.id} style={{ borderBottom: '1px solid var(--admin-border)' }}>
+                                <tr key={res.id || res._id} style={{ borderBottom: '1px solid var(--admin-border)' }}>
                                     <td style={{ padding: '16px', fontWeight: 700, color: 'var(--primary)' }}>{res.reservationNo}</td>
                                     <td style={{ padding: '16px' }}>{res.guestId?.fullName || "Guest Account"}</td>
                                     <td style={{ padding: '16px' }}>{res.roomId?.roomNumber} ({res.roomId?.roomType})</td>
@@ -182,11 +155,6 @@ export function BookingRegistry({ reservations }) {
                             )}
                         </tbody>
                     </table>
-=======
-                {/* Simplified for brevity, usually I'd copy the table from Dashboard */}
-                <div style={{ padding: '40px', textAlign: 'center', color: 'var(--admin-text-muted)' }}>
-                    <p>Total data synchronized. See Dashboard for the primary interactive registry.</p>
->>>>>>> origin/main
                 </div>
             </div>
         </div>
