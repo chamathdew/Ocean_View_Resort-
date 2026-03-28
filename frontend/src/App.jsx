@@ -430,25 +430,23 @@ export default function App() {
             </button>
 
             <nav className={`header-nav ${mobileMenuOpen ? 'open' : ''}`}>
-              {isAdmin && <Link to="/admin" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>}
-              {isAdmin && <Link to="/rooms" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Inventory</Link>}
-              <Link to="/about" className="nav-link" onClick={() => setMobileMenuOpen(false)}>About Us</Link>
+              <div className="header-links">
+                {isAdmin && <Link to="/admin" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>}
+                {isAdmin && <Link to="/rooms" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Inventory</Link>}
+                <Link to="/about" className="nav-link" onClick={() => setMobileMenuOpen(false)}>About Us</Link>
 
-              {!isAdmin && <Link to="/book" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Book Room</Link>}
-              <Link to="/search" className="nav-link" onClick={() => setMobileMenuOpen(false)}>My Booking</Link>
-              <Link to="/help" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Help & Support</Link>
+                {!isAdmin && <Link to="/book" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Book Room</Link>}
+                <Link to="/search" className="nav-link" onClick={() => setMobileMenuOpen(false)}>My Booking</Link>
+                <Link to="/help" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Help & Support</Link>
+              </div>
               <div className="header-actions">
-                <button onClick={toggleTheme} className="ghost" style={{ padding: '8px 12px', marginRight: 15, fontSize: 18 }}>
-                  {theme === 'light' ? '🌙' : '☀️'}
-                </button>
                 {user ? (
                   <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-                    <div style={{ padding: '4px 8px', borderRadius: '4px', background: 'rgba(16, 163, 74, 0.1)', color: '#16a34a', fontSize: '10px', fontWeight: 800, letterSpacing: '0.5px', border: '1px solid rgba(16, 163, 74, 0.2)' }}>
-                      SECURE SESSION ACTIVE
-                    </div>
                     <div style={{ textAlign: 'right' }}>
                       <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--primary)' }}>{user.name}</div>
-                      <div style={{ fontSize: 11, textTransform: 'uppercase', color: 'var(--accent)' }}>{user.role} Member</div>
+                      <div style={{ fontSize: 11, textTransform: 'uppercase', color: 'var(--accent)' }}>
+                        {user.role === 'admin' ? 'Administrator' : 'Member'}
+                      </div>
                     </div>
                     <button onClick={logout} className="ghost" style={{ padding: '8px 16px' }}>Logout</button>
                   </div>

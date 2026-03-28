@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import jakarta.mail.internet.MimeMessage;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -98,6 +99,10 @@ public class EmailService {
     }
 
     private String buildBookingHtml(Guest guest, Room room, Reservation res, long nights, String total) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String checkInStr = sdf.format(res.getCheckIn());
+        String checkOutStr = sdf.format(res.getCheckOut());
+        
         return "<html><body style='font-family: Arial, sans-serif; color: #333; line-height: 1.6;'>" +
                 "<div style='max-width: 600px; margin: 20px auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;'>" +
                 "<div style='background: #0f172a; padding: 30px; text-align: center; color: white;'>" +
@@ -106,7 +111,7 @@ public class EmailService {
                 "<p>Dear " + guest.getFullName() + ",</p><p>Your booking is confirmed. Details below:</p>" +
                 "<div style='background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;'>" +
                 "Ref: <b>" + res.getReservationNo() + "</b><br>" +
-                "Dates: " + res.getCheckIn().toLocaleString().substring(0, 10) + " to " + res.getCheckOut().toLocaleString().substring(0, 10) + "<br>" +
+                "Dates: " + checkInStr + " to " + checkOutStr + "<br>" +
                 "Suite: " + room.getRoomNumber() + " (" + room.getRoomType() + ")</div>" +
                 "<table style='width: 100%; border-collapse: collapse; margin-top: 20px;'>" +
                 "<tr style='border-bottom: 2px solid #e2e8f0;'><td><b>Description</b></td><td><b>Nights</b></td><td style='text-align: right;'><b>Total</b></td></tr>" +

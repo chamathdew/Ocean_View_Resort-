@@ -201,9 +201,6 @@ export default function AdminDashboard() {
                                     <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--admin-sidebar-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name}</div>
                                     <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', textTransform: 'uppercase' }}>{user.role} Account</div>
                                 </div>
-                                <button onClick={toggleTheme} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', borderRadius: '8px', padding: '8px', cursor: 'pointer', color: 'var(--admin-text-muted)' }}>
-                                    {theme === 'light' ? '🌙' : '☀️'}
-                                </button>
                             </div>
                             <button onClick={logout} style={{ width: '100%', padding: '12px', background: 'rgba(239, 68, 68, 0.1)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '10px', cursor: 'pointer', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                                 <span>🚪</span> Logout Securely

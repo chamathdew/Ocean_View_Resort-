@@ -95,7 +95,7 @@ export default function Reservations() {
     } finally {
       setLoading(false);
     }
-  }, [roomType]);
+  }, [roomType, checkIn, checkOut]);
 
   // Handle Search Click
   const handleSearch = () => {
