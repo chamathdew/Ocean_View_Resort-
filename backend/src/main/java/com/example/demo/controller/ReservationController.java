@@ -13,9 +13,13 @@ import java.util.Map;
 
 import jakarta.validation.Valid;
 
+/**
+ * Controller for handling reservations
+ * Author: Dewmina
+ */
 @RestController
 @RequestMapping("/api/reservations")
-@CrossOrigin("*")
+@CrossOrigin("*") // TODO: strictly change this in production, don't leave *
 public class ReservationController {
 
     private final ReservationService reservationService;
@@ -26,6 +30,7 @@ public class ReservationController {
 
     @PostMapping
     public ResponseEntity<Reservation> createReservation(@Valid @RequestBody ReservationRequest req) {
+        System.out.println(">>> New booking received from: " + req.getEmail()); // for debugging
         Reservation res = reservationService.addReservation(req);
         return ResponseEntity.ok(res);
     }
@@ -43,6 +48,7 @@ public class ReservationController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteReservation(@PathVariable String id) {
+        // user requested cancellation
         reservationService.deleteReservation(id);
         return ResponseEntity.ok().build();
     }
@@ -72,6 +78,7 @@ public class ReservationController {
 
     @GetMapping("/by-email/{email}")
     public List<Map<String, Object>> getByEmail(@PathVariable String email) {
+        // System.out.println("Fetching list for email: " + email); 
         return reservationService.getReservationsByEmail(email);
     }
 

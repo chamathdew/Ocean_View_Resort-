@@ -12,7 +12,6 @@ export default function AdminDashboard() {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("reservations");
     const [user, setUser] = useState(null);
-    const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const navigate = useNavigate();
 
@@ -40,17 +39,10 @@ export default function AdminDashboard() {
     useEffect(() => {
         const savedUser = localStorage.getItem("user");
         if (savedUser) setUser(JSON.parse(savedUser));
-        document.documentElement.setAttribute("data-theme", theme);
         (async () => {
             await loadReservations();
         })();
-    }, [theme, loadReservations]);
-
-    const toggleTheme = () => {
-        const next = theme === "light" ? "dark" : "light";
-        setTheme(next);
-        localStorage.setItem("theme", next);
-    };
+    }, [loadReservations]);
 
     const logout = () => {
         localStorage.removeItem("token");

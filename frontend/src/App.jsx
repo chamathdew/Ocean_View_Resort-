@@ -1,3 +1,9 @@
+/* 
+ * Ocean View Resort 
+ * Main Application Component
+ * Final Version
+ * Note: DO NOT remove ReactRouter, it breaks everything
+ */
 import React, { useEffect, useState, useCallback } from "react";
 import { Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
@@ -51,7 +57,8 @@ function Home() {
     const e = new Date(end);
     const diffTime = Math.abs(e - s);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-    return diffDays === 0 ? 1 : diffDays; // Minimum 1 day
+    // console.log("Days:", diffDays); // checking if dates are calculated properly
+    return diffDays === 0 ? 1 : diffDays; // if same day, charge for at least 1 day
   };
 
   const calculateTotal = () => {
@@ -63,12 +70,14 @@ function Home() {
   };
 
   const confirmTransportBooking = () => {
+    // TODO: handle better validation here later
     if (!transportForm.startDate || !transportForm.endDate) {
       alert("Please enter both Start Date and End Date.");
       return;
     }
     
     // Check if end date is before start date
+    // bug fix: user was selecting end date before start date lol
     if (new Date(transportForm.endDate) < new Date(transportForm.startDate)) {
       alert("End Date cannot be before Start Date.");
       return;
@@ -92,17 +101,20 @@ function Home() {
 
   const fetchData = useCallback(async () => {
     try {
+      // fetching all data parallel instead of one by one to save time
       const [roomsRes, transportsRes, attractionsRes] = await Promise.all([
         axios.get(`${API}/api/rooms`),
         axios.get(`${API}/api/transports`),
         axios.get(`${API}/api/attractions`)
       ]);
 
+      // console.log("API test:", roomsRes.data);
       setRooms(roomsRes.data);
       setTransports(transportsRes.data);
       setAttractions(attractionsRes.data);
     } catch (err) {
       console.error("Error fetching data:", err);
+      // alert("Backend is down, please start the spring boot app");
     } finally {
       setLoading(false);
     }
@@ -385,22 +397,10 @@ export default function App() {
     const savedUser = localStorage.getItem("user");
     return savedUser ? JSON.parse(savedUser) : null;
   });
-  const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
-
-  useEffect(() => {
-    // theme init
-    document.documentElement.setAttribute("data-theme", theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    const next = theme === "light" ? "dark" : "light";
-    setTheme(next);
-    localStorage.setItem("theme", next);
-  };
 
   const logout = () => {
     localStorage.removeItem("token");

@@ -1,48 +1,51 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  /* LIGHT: Ocean Teal & Gold */
-  --primary: #0891b2;
-  --primary-rgb: 8, 145, 178;
-  --accent: #d4af37;
-  --accent-rgb: 212, 175, 55;
+  /* DARK: Midnight Luxury */
+  --primary: #38bdf8;
+  --primary-rgb: 56, 189, 248;
+  --accent: #fbbf24;
+  --accent-rgb: 251, 191, 36;
 
-  --bg-gradient: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%);
-  --glass-bg: rgba(255, 255, 255, 0.85);
-  --glass-border: rgba(8, 145, 178, 0.2);
-  --glass-shadow: 0 10px 40px -10px rgba(8, 145, 178, 0.15);
+  /* Deep Slate Gradient - More neutral and premium */
+  --bg-gradient: linear-gradient(135deg, #0f172a 0%, #020617 100%);
 
-  --text: #164e63;
-  --text-muted: #64748b;
-  --card-bg: #ffffff;
+  /* Refined Glass Effect */
+  --glass-bg: rgba(30, 41, 59, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
 
-  --nav-glass: rgba(255, 255, 255, 0.9);
-  --nav-border: rgba(8, 145, 178, 0.1);
+  --text: #f1f5f9;
+  --text-muted: #94a3b8;
 
-  --input-bg: rgba(255, 255, 255, 0.9);
-  --input-border: #a5f3fc;
+  /* Cards */
+  --card-bg: rgba(30, 41, 59, 0.6);
+  --surface: #1e293b;
+
+  --nav-glass: rgba(15, 23, 42, 0.9);
+  --nav-border: rgba(255, 255, 255, 0.05);
+
+  --input-bg: rgba(15, 23, 42, 0.6);
+  --input-border: rgba(255, 255, 255, 0.1);
 
   /* Aliases */
   --text-light: var(--text-muted);
   --card: var(--card-bg);
-  --bg: var(--bg-gradient);
   --border: var(--glass-border);
-  --shadow-lg: var(--glass-shadow);
-  --shadow-md: var(--glass-shadow);
-  --accent-soft: rgba(212, 175, 55, 0.15);
-  --surface: #f0fdfa;
-  --hero-overlay: linear-gradient(rgba(236, 254, 255, 0.85), rgba(207, 250, 254, 0.75));
-  /* Admin Theme Variables - Light */
-  --admin-sidebar-bg: #1e293b;
-  --admin-sidebar-text: #fff;
-  --admin-card-bg: #fff;
-  --admin-bg: #f8fafc;
-  --admin-border: #e2e8f0;
-  --admin-text-main: #1e293b;
-  --admin-text-muted: #64748b;
-  --admin-table-head: #f1f5f9;
-  --admin-hover: #fafafa;
-  --admin-footer-bg: #0f172a;
+  --accent-soft: rgba(251, 191, 36, 0.15);
+  --hero-overlay: linear-gradient(rgba(15, 23, 42, 0.85), rgba(2, 6, 23, 0.8));
+
+  /* Admin Theme Variables - Dark */
+  --admin-sidebar-bg: rgba(15, 23, 42, 0.95);
+  --admin-sidebar-text: #f1f5f9;
+  --admin-card-bg: rgba(30, 41, 59, 0.6);
+  --admin-bg: var(--bg-gradient);
+  --admin-border: rgba(255, 255, 255, 0.08);
+  --admin-text-main: #f1f5f9;
+  --admin-text-muted: #94a3b8;
+  --admin-table-head: rgba(15, 23, 42, 0.5);
+  --admin-hover: rgba(255, 255, 255, 0.03);
+  --admin-footer-bg: rgba(2, 6, 23, 0.8);
 }
 
 /* --- ANALYTICS DASHBOARD STYLES --- */
@@ -87,54 +90,6 @@
   color: var(--admin-text-main);
 }
 
-
-[data-theme='dark'] {
-  /* DARK: Midnight Luxury */
-  --primary: #38bdf8;
-  --primary-rgb: 56, 189, 248;
-  --accent: #fbbf24;
-  --accent-rgb: 251, 191, 36;
-
-  /* Deep Slate Gradient - More neutral and premium */
-  --bg-gradient: linear-gradient(135deg, #0f172a 0%, #020617 100%);
-
-  /* Refined Glass Effect */
-  --glass-bg: rgba(30, 41, 59, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
-
-  --text: #f1f5f9;
-  --text-muted: #94a3b8;
-
-  /* Cards */
-  --card-bg: rgba(30, 41, 59, 0.6);
-  --surface: #1e293b;
-
-  --nav-glass: rgba(15, 23, 42, 0.9);
-  --nav-border: rgba(255, 255, 255, 0.05);
-
-  --input-bg: rgba(15, 23, 42, 0.6);
-  --input-border: rgba(255, 255, 255, 0.1);
-
-  /* Aliases */
-  --text-light: var(--text-muted);
-  --card: var(--card-bg);
-  --border: var(--glass-border);
-  --accent-soft: rgba(251, 191, 36, 0.15);
-  --hero-overlay: linear-gradient(rgba(15, 23, 42, 0.85), rgba(2, 6, 23, 0.8));
-  /* Admin Theme Variables - Dark */
-  --admin-sidebar-bg: rgba(15, 23, 42, 0.95);
-  --admin-sidebar-text: #f1f5f9;
-  --admin-card-bg: rgba(30, 41, 59, 0.6);
-  --admin-bg: var(--bg-gradient);
-  --admin-border: rgba(255, 255, 255, 0.08);
-  --admin-text-main: #f1f5f9;
-  --admin-text-muted: #94a3b8;
-  --admin-table-head: rgba(15, 23, 42, 0.5);
-  --admin-hover: rgba(255, 255, 255, 0.03);
-  --admin-footer-bg: rgba(2, 6, 23, 0.8);
-}
-
 * {
   box-sizing: border-box;
 }
@@ -151,7 +106,7 @@ body {
   overflow-x: hidden;
 }
 
-/* --- PREMIUM SCROLLBAR --- */
+/* --- SCROLLBAR --- */
 ::-webkit-scrollbar {
   width: 8px;
 }

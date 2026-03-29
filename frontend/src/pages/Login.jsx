@@ -12,19 +12,23 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
+      // console.log("attempting login with:", email); // uncomment to debug
       const { data } = await axios.post(`${API}/api/auth/login`, {
         email,
         password,
       });
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
+      
+      // alert("Login success!"); // took this out cos it's annoying
       if (data.user.role === "admin") {
-        window.location.href = "/admin";
+        window.location.href = "/admin"; // redirect to dashboard
       } else {
-        window.location.href = "/";
+        window.location.href = "/"; // go home
       }
     } catch (err) {
-      console.log("login error:", err);
+      console.log("login error =>", err);
+      // set error msg if backend fails or wrong pass
       setError("Wrong email or password.");
     }
   };
